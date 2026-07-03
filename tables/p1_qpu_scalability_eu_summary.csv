@@ -1,0 +1,3 @@
+method,primitive,points,min_N,max_N,mean_abs_err,max_abs_err,max_two_q,all_within_2q_budget
+resilience_0,EstimatorV2,6,12,52,0.024518380970502796,0.031276255448650536,390,True
+vanilla_sampler,SamplerV2,6,12,52,0.011407415612619284,0.0293231304497803,390,True

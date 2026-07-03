@@ -1,0 +1,7 @@
+r,N,time,reps,z0_exact,planned_methods,shots_per_method,logical_depth,logical_two_q,logical_two_q_depth,logical_within_2q_budget
+1,12,1.0,2,0.6845639601747561,"vanilla_sampler,resilience_0",4096,31,90,15,True
+2,20,1.0,2,0.6845440570513495,"vanilla_sampler,resilience_0",4096,31,150,15,True
+3,28,1.0,2,0.6845440570502197,"vanilla_sampler,resilience_0",4096,31,210,15,True
+4,36,1.0,2,0.6845440570502259,"vanilla_sampler,resilience_0",4096,31,270,15,True
+5,44,1.0,2,0.6845440570502157,"vanilla_sampler,resilience_0",4096,31,330,15,True
+6,52,1.0,2,0.6845440570502164,"vanilla_sampler,resilience_0",4096,31,390,15,True

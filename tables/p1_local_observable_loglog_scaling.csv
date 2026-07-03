@@ -1,0 +1,7 @@
+observable,setting,slope_vs_t,expected_t,slope_vs_reps,expected_reps
+Z1,LT_k1,3.94,2,-1.34,-1
+Z1,ST2_k1,3.92,3,-0.59,-2
+Z1,ST4_k1,5.29,5,-2.13,-4
+Z0Z1,LT_k1,3.88,2,2.4,-1
+Z0Z1,ST2_k1,3.96,3,-2.02,-2
+Z0Z1,ST4_k1,5.89,5,-4.28,-4

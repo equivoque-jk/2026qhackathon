@@ -1,0 +1,10 @@
+setting,depth_min,depth_max,depth_constant,CX_per_N_mean,first_N_CX_ge_400,note
+LT_k1,13,13,True,3.0,,logical grouped basis transpilation; real hardware requires ring/layout check
+ST2_k1,19,19,True,4.5,,logical grouped basis transpilation; real hardware requires ring/layout check
+ST4_k1,67,67,True,16.5,28.0,logical grouped basis transpilation; real hardware requires ring/layout check
+LT_k2,25,25,True,6.0,,logical grouped basis transpilation; real hardware requires ring/layout check
+ST2_k2,31,31,True,7.5,,logical grouped basis transpilation; real hardware requires ring/layout check
+ST4_k2,127,127,True,31.5,20.0,logical grouped basis transpilation; real hardware requires ring/layout check
+LT_k3,37,37,True,9.0,52.0,logical grouped basis transpilation; real hardware requires ring/layout check
+ST2_k3,43,43,True,10.5,44.0,logical grouped basis transpilation; real hardware requires ring/layout check
+ST4_k3,187,187,True,46.5,12.0,logical grouped basis transpilation; real hardware requires ring/layout check

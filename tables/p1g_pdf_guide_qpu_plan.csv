@@ -1,0 +1,10 @@
+requirement,time,N,reps,observable,obs_exact,planned_primitive,planned_resilience_level,planned_shots,logical_depth,logical_two_q,logical_two_q_depth,logical_within_hard_constraints
+context,0.5,12,2,Z0,0.8997458345693597,EstimatorV2,2,8192,31,90,15,True
+pdf_1h,0.5,12,2,Z1,0.334777045048253,EstimatorV2,2,8192,31,90,15,True
+pdf_1h,0.5,12,2,Z0Z1,0.23452287961761276,EstimatorV2,2,8192,31,90,15,True
+guide_1g,1.0,12,2,Z0,0.6845639601747561,EstimatorV2,2,8192,31,90,15,True
+pdf_1h,1.0,12,2,Z1,0.9912671465636668,EstimatorV2,2,8192,31,90,15,True
+pdf_1h,1.0,12,2,Z0Z1,0.6758311067384228,EstimatorV2,2,8192,31,90,15,True
+context,1.5,12,2,Z0,0.9539526359368348,EstimatorV2,2,8192,31,90,15,True
+pdf_1h,1.5,12,2,Z1,0.8447650468333716,EstimatorV2,2,8192,31,90,15,True
+pdf_1h,1.5,12,2,Z0Z1,0.7987176827702065,EstimatorV2,2,8192,31,90,15,True

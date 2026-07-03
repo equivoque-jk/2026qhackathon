@@ -1,0 +1,7 @@
+initial_state,label,n_visible_eigvals,visible_overlap_weight,top_peak_matched
+Neel,101010,9,0.981,True
+anti-Neel,010101,9,0.981,True
+single-excitation,000001,21,0.947,True
+domain-wall,111000,19,0.967,True
+random-A,100110,22,0.925,True
+random-B,011001,22,0.925,True

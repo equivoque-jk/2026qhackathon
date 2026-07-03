@@ -1,0 +1,6 @@
+variant,T_eff,dE,n_peaks,mean_peak_match_err
+"rectangular, T_max",15.05,0.417,7,0.0743
+"Hanning, T_max",15.05,0.417,5,0.0799
+Hanning + zero-pad x4,15.05,0.417,5,0.0454
+"Hanning, T_max/2",7.5,0.838,4,0.1242
+"Hanning, T_max/4",3.75,1.676,3,0.3119

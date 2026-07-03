@@ -1,0 +1,11 @@
+method,shots_per_circuit,mitigation,mean_abs_err_t1,mean_standard_error_t1,mean_rel_improvement_t1,mean_acceptance_t1,min_qpu_shots_needed_for_target_se,qpu_ready_candidate_at_t1,readiness_reasons
+MPF23_postselected,8192,MPF_postselected,0.005951886061500988,0.01837798952209875,0.7961890735951974,0.6392415364583334,13546.0,True,ready
+baseline_ST2_k3_raw_control,8192,none_control,0.032871251841422734,0.008378935320194182,-0.002283093099927284,1.0,1409.0,False,baseline/control
+baseline_ST2_k2_raw,8192,none,0.03565088357524393,0.007664369865277641,0.0,1.0,1187.0,False,baseline/control
+baseline_ST2_k2_raw,4096,none,0.038417810658577266,0.010794797286361063,0.0,1.0,1193.0,False,baseline/control
+baseline_ST2_k3_raw_control,4096,none_control,0.061354324758089406,0.012219605785273013,-0.5971037422904107,1.0,1529.0,False,baseline/control
+MPF23_postselected,4096,MPF_postselected,0.07705771906815247,0.027394270083874326,-1.005855572893885,0.6234537760416666,15356.0,False,relative error improvement -0.982 < 0.100 | relative error improvement -1.013 < 0.100 | relative error improvement -1.023 < 0.100
+MPF23_raw,8192,MPF,0.08768896017475607,0.016280813535311106,-1.6041095675798693,1.0,10648.0,False,relative error improvement -0.884 < 0.100 | relative error improvement -1.076 < 0.100 | relative error improvement -2.852 < 0.100
+postselection_ST2_k2_weight1,8192,postselection,0.09464337346878464,0.00827867311871574,-1.728403983240611,0.6995442708333334,1366.0,False,relative error improvement -1.241 < 0.100 | relative error improvement -1.596 < 0.100 | relative error improvement -2.347 < 0.100
+postselection_ST2_k2_weight1,4096,postselection,0.10705845870430002,0.011495803739772338,-1.7867363684888578,0.689697265625,1352.0,False,relative error improvement -1.781 < 0.100 | relative error improvement -1.798 < 0.100
+MPF23_raw,4096,MPF,0.14117203309142268,0.023629864610421058,-2.6747867361227375,1.0,11430.0,False,relative error improvement -2.647 < 0.100 | relative error improvement -2.670 < 0.100 | relative error improvement -2.707 < 0.100

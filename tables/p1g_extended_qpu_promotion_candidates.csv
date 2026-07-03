@@ -1,0 +1,2 @@
+method,shots_per_circuit,mitigation,mean_abs_err_t1,mean_standard_error_t1,mean_rel_improvement_t1,mean_acceptance_t1,min_qpu_shots_needed_for_target_se,qpu_ready_candidate_at_t1,readiness_reasons
+MPF23_postselected,8192,MPF_postselected,0.005951886061500988,0.01837798952209875,0.7961890735951974,0.6392415364583334,13546.0,True,ready

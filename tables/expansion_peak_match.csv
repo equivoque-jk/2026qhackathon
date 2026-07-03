@@ -1,0 +1,6 @@
+peak_energy,nearest_eigenvalue,abs_diff,within_1dE,within_2dE,overlap_weight
+-10.855,-10.937,0.083,True,True,0.274
+-9.185,-9.341,0.156,True,True,0.359
+-7.097,-7.031,0.066,True,True,0.058
+-3.757,-3.819,0.062,True,True,0.148
+-0.0,0.033,0.033,True,True,0.041

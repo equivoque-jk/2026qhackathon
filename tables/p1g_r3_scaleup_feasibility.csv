@@ -1,0 +1,7 @@
+r,N,two_q_vanilla,z0_exact,postselect_2q,postselect_within_budget,zne_x1_2q,zne_x1_within_budget,zne_x3_2q,zne_x3_within_budget,zne_x5_2q,zne_x5_within_budget,resilience2_all_folds_within_budget
+1,12,90,0.6845639601747561,90,True,90,True,270,True,450,False,False
+2,20,150,0.6845440570513495,150,True,150,True,450,False,750,False,False
+3,28,210,0.6845440570502197,210,True,210,True,630,False,1050,False,False
+4,36,270,0.6845440570502259,270,True,270,True,810,False,1350,False,False
+5,44,330,0.6845440570502157,330,True,330,True,990,False,1650,False,False
+6,52,390,0.6845440570502164,390,True,390,True,1170,False,1950,False,False

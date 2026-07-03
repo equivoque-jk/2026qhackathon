@@ -1,0 +1,4 @@
+reps,ranked_settings,best,best_eps_state_t0p5
+1,ST4_k1 > ST2_k1 > LT_k1,ST4_k1,0.010905355581120157
+2,ST4_k2 > ST2_k2 > LT_k2,ST4_k2,7.749436978343738e-06
+3,ST4_k3 > ST2_k3 > LT_k3,ST4_k3,2.7887346265575985e-07

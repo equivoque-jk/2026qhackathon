@@ -1,0 +1,13 @@
+field,value
+N,12
+Hamiltonian,"periodic XX+YY+1.2ZZ, hx=0"
+initial_state,"|10...0>, qubit 0 excited"
+time,1.0
+observable,"<Z0>, <Z1>, <Z0Z1>"
+primary_scalar_for_mitigation,Z0
+baseline_formula,"SuzukiTrotter(order=2, reps=2)"
+postselection_rule,Hamming weight == 1
+fair_baseline_postselection,"same ST2_k2 circuit, noiseless Trotter value"
+fair_baseline_MPF,"unmitigated ST2_k3 raw control, same max-depth scale"
+fair_baseline_resilience,"same submitted ST2_k2 circuit, noiseless Trotter value"
+MPF_formula,(3^2 O_k3 - 2^2 O_k2) / (3^2 - 2^2)

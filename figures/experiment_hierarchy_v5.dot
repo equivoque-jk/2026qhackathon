@@ -1,0 +1,54 @@
+
+digraph G {
+  graph [rankdir=TB, bgcolor="white", pad="0.25", nodesep="0.35", ranksep="0.48", splines=ortho];
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11, margin="0.10,0.07", color="#52616b", fillcolor="#f7fafc"];
+  edge [color="#6b7280", arrowsize=0.7, penwidth=1.1, fontname="Helvetica", fontsize=9];
+
+  root [label="정신곽문조 v5\nTrotterized Heisenberg simulation", fillcolor="#263238", fontcolor="white", color="#263238"];
+
+  subgraph cluster_p1 {
+    label="Problem 1: Trotter circuits, resources, errors"; color="#d7dee8"; style="rounded";
+    p1a [label="1(a) Hamiltonian\nSparsePauliOp, 24 terms, PBC terms"];
+    p1bc [label="1(b-c) Product formulas\nLT/ST2/ST4 x k=1,2,3\n{cx,u3,u1} resources"];
+    p1df [label="1(d-f) Exact vs PF errors\nstate infidelity, Z1, Z0Z1\ntime plots + all-9 tables"];
+    p1g [label="1(g) / guide IBM target\nN=12, t=1.0, <Z0>\nconstraints depth/2q/2q-depth"];
+    p1h [label="1(g/h) Trade-off discussion\nPareto, same reps, similar depth"];
+    p1scale [label="Challenge / scalability\nN=4+8r, r=1..6\nresource plan + QPU scale run"];
+  }
+
+  subgraph cluster_mit {
+    label="Mitigation / QPU experiment hierarchy"; color="#d7dee8"; style="rounded";
+    clean [label="Clean controls\nST2_k2, ST2_k3, MPF23\nnoiseless Trotter baselines", fillcolor="#eef7ff"];
+    noisy [label="Noisy simulator qualification\nraw, post-selection, MPF\nshot cost + acceptance", fillcolor="#eef7ff"];
+    mpf [label="MPF validity\nε_A, ε_state\ne(r)/e(2r) ≈ 4", fillcolor="#eef7ff"];
+    four [label="4-stage decomposition\nexact -> noiseless Trotter\n-> noisy raw -> post-selected", fillcolor="#eef7ff"];
+    r2 [label="Round 2 QPU\nEstimator res 0/1/2 + Sampler post-selection\nN=12", fillcolor="#fff7ed"];
+    pdf [label="PDF+guide QPU completion\nEstimator res=2\nZ0, Z1, Z0Z1 at representative times", fillcolor="#fff7ed"];
+    qscale [label="QPU scalability\nvanilla Sampler vs Estimator res0\nN=12..52", fillcolor="#fff7ed"];
+  }
+
+  subgraph cluster_p2 {
+    label="Problem 2: autocorrelation and spectrum"; color="#d7dee8"; style="rounded";
+    p2a [label="2(a) Exact A(t)\nRe, Im, |A|"];
+    p2bc [label="2(b-c) Trotterized A_PF(t)\nHadamard-test verification\nε_A(t)"];
+    p2de [label="2(d-e) DFT spectrum\npeaks vs eigenenergies\noverlap explanation"];
+  }
+
+  subgraph cluster_bonus {
+    label="Bonus 3"; color="#d7dee8"; style="rounded";
+    bonus [label="ST2_k3 t=0.5\nopt levels 0..3\nRustiq comparison if available"];
+  }
+
+  root -> p1a -> p1bc -> p1df -> p1h;
+  p1df -> p1g;
+  p1g -> clean -> noisy -> mpf -> four;
+  four -> r2;
+  p1g -> pdf;
+  p1g -> p1scale -> qscale;
+  p1df -> p2a -> p2bc -> p2de;
+  p1bc -> bonus;
+
+  noisy -> r2 [label="candidate evidence"];
+  clean -> r2 [label="fair Trotter baseline"];
+  p1h -> p1scale [label="model choice"];
+}

@@ -1,0 +1,5 @@
+setting,time,optimization_level,depth,total_gates,two_qubit_gates,cx_count,one_qubit_gates,two_qubit_depth
+ST2_k3,0.5,0,162,645,216,216,429,72
+ST2_k3,0.5,1,145,546,216,216,330,72
+ST2_k3,0.5,2,43,195,63,63,132,21
+ST2_k3,0.5,3,43,195,63,63,132,21
