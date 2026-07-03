@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trotterized Heisenberg Simulation — 문제 가이드</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+
+<style>
+  :root{
+    --ink:#141b24;
+    --ink-soft:#3a4654;
+    --ink-faint:#697585;
+    --paper:#eceff3;
+    --surface:#ffffff;
+    --line:#d4dae1;
+    --line-soft:#e4e8ed;
+    --xx:#2f6fb0;   /* XX */
+    --yy:#dd8a2c;   /* YY */
+    --zz:#4a9e5c;   /* ZZ */
+    --field:#8a5cb8;/* field / accent */
+    --warn-bg:#fbf4ec;
+    --warn-line:#e6b87a;
+    --note-bg:#eef3f8;
+    --note-line:#9cc0df;
+    --maxw:840px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Spectral",Georgia,serif;
+    font-size:18px;
+    line-height:1.66;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- layout ---------- */
+  .wrap{
+    display:grid;
+    grid-template-columns:248px minmax(0,1fr);
+    gap:0;
+    max-width:1180px;
+    margin:0 auto;
+  }
+  nav.toc{
+    position:sticky;
+    top:0;
+    align-self:start;
+    height:100vh;
+    overflow-y:auto;
+    padding:34px 22px 60px 28px;
+    border-right:1px solid var(--line);
+    font-family:"Space Grotesk",sans-serif;
+    font-size:13.5px;
+  }
+  nav.toc .brand{
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:-0.01em;
+    line-height:1.3;
+    margin-bottom:4px;
+    color:var(--ink);
+  }
+  nav.toc .brand small{
+    display:block;
+    font-weight:400;
+    font-size:11.5px;
+    color:var(--ink-faint);
+    letter-spacing:0.02em;
+    margin-top:5px;
+  }
+  nav.toc hr{border:none;border-top:1px solid var(--line-soft);margin:18px 0;}
+  nav.toc a{
+    display:block;
+    color:var(--ink-soft);
+    text-decoration:none;
+    padding:4px 0 4px 12px;
+    border-left:2px solid transparent;
+    transition:all .15s ease;
+  }
+  nav.toc a:hover{color:var(--ink);border-left-color:var(--line);}
+  nav.toc a.lead{font-weight:600;color:var(--ink);margin-top:10px;}
+  nav.toc a .n{color:var(--ink-faint);font-variant-numeric:tabular-nums;margin-right:7px;}
+
+  main{
+    padding:48px 56px 120px;
+    max-width:calc(var(--maxw) + 112px);
+  }
+
+  /* ---------- masthead ---------- */
+  header.mast{
+    border-bottom:2px solid var(--ink);
+    padding-bottom:26px;
+    margin-bottom:14px;
+  }
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:12px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin-bottom:14px;
+  }
+  header.mast h1{
+    font-family:"Space Grotesk",sans-serif;
+    font-weight:700;
+    font-size:40px;
+    line-height:1.08;
+    letter-spacing:-0.025em;
+    margin:0 0 14px;
+  }
+  header.mast p.lede{
+    font-size:18.5px;
+    color:var(--ink-soft);
+    margin:0;
+    max-width:60ch;
+  }
+  .qline-strip{display:flex;gap:0;height:5px;margin-top:26px;border-radius:3px;overflow:hidden;}
+  .qline-strip span{flex:1;}
+  .qline-strip .s1{background:var(--xx);}
+  .qline-strip .s2{background:var(--yy);}
+  .qline-strip .s3{background:var(--zz);}
+  .qline-strip .s4{background:var(--field);}
+
+  /* ---------- sections ---------- */
+  section{padding-top:40px;scroll-margin-top:24px;}
+  h2{
+    font-family:"Space Grotesk",sans-serif;
+    font-weight:700;
+    font-size:27px;
+    letter-spacing:-0.02em;
+    line-height:1.15;
+    margin:0 0 6px;
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+  }
+  h2 .tag{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:13px;
+    font-weight:500;
+    color:var(--ink-faint);
+    letter-spacing:0.04em;
+  }
+  h2::before{
+    content:"";
+    display:inline-block;
+    width:14px;height:14px;
+    border-radius:3px;
+    flex:0 0 auto;
+    transform:translateY(1px);
+  }
+  section[data-c="xx"] h2::before{background:var(--xx);}
+  section[data-c="yy"] h2::before{background:var(--yy);}
+  section[data-c="zz"] h2::before{background:var(--zz);}
+  section[data-c="field"] h2::before{background:var(--field);}
+  section[data-c="ink"] h2::before{background:var(--ink);}
+
+  h3{
+    font-family:"Space Grotesk",sans-serif;
+    font-weight:600;
+    font-size:19.5px;
+    letter-spacing:-0.01em;
+    margin:30px 0 4px;
+  }
+  h4{
+    font-family:"Space Grotesk",sans-serif;
+    font-weight:600;
+    font-size:16px;
+    margin:22px 0 2px;
+    color:var(--ink);
+  }
+  p{margin:12px 0;}
+  .sub{color:var(--ink-faint);font-size:15.5px;font-family:"IBM Plex Mono",monospace;letter-spacing:0.02em;margin-top:2px;}
+
+  code,.mono{font-family:"IBM Plex Mono",monospace;font-size:0.86em;}
+  p code,li code,td code{
+    background:#eef1f4;
+    padding:1px 6px;
+    border-radius:4px;
+    color:#2b3a48;
+    font-size:0.82em;
+  }
+  strong{font-weight:600;color:var(--ink);}
+  a.ref{color:var(--xx);text-decoration:none;border-bottom:1px solid #b9d2e6;}
+
+  /* approach callout */
+  .approach{
+    border-left:3px solid var(--zz);
+    background:linear-gradient(90deg,#f1f7f2,transparent 90%);
+    padding:10px 18px;
+    margin:14px 0;
+    font-size:16.5px;
+  }
+  .approach b{font-family:"Space Grotesk",sans-serif;font-size:12.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--zz);display:block;margin-bottom:2px;}
+
+  /* sub-problem cards */
+  .subprob{
+    border:1px solid var(--line);
+    border-radius:10px;
+    background:var(--surface);
+    padding:16px 20px 14px;
+    margin:14px 0;
+  }
+  .subprob .lab{
+    font-family:"IBM Plex Mono",monospace;
+    font-weight:600;
+    font-size:13px;
+    color:#fff;
+    background:var(--ink);
+    padding:2px 9px;
+    border-radius:5px;
+    margin-right:9px;
+    letter-spacing:0.02em;
+  }
+  .subprob .what{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:16.5px;}
+  .subprob p{margin:9px 0 4px;font-size:16px;}
+  .subprob .how{font-size:15px;color:var(--ink-soft);margin-top:6px;}
+  .subprob .how b{color:var(--zz);font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:0.03em;}
+
+  /* callout boxes */
+  .box{border-radius:10px;padding:16px 20px;margin:20px 0;font-size:16px;}
+  .box .h{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:14px;letter-spacing:0.02em;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+  .box.warn{background:var(--warn-bg);border:1px solid var(--warn-line);}
+  .box.warn .h{color:#b4690e;}
+  .box.note{background:var(--note-bg);border:1px solid var(--note-line);}
+  .box.note .h{color:#2c6594;}
+  .box .ico{font-family:"IBM Plex Mono",monospace;font-weight:700;}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px;font-family:"IBM Plex Mono",monospace;}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line-soft);vertical-align:top;}
+  th{background:#f3f5f8;font-weight:600;font-size:12.5px;letter-spacing:0.03em;text-transform:uppercase;color:var(--ink-soft);border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  td .pl{font-family:"Spectral",serif;font-size:15px;}
+
+  /* circuit diagram block */
+  .circuits{margin:22px 0 8px;}
+  .circ-card{
+    border:1px solid var(--line);
+    border-radius:10px;
+    background:var(--surface);
+    padding:14px 16px 10px;
+    margin:14px 0;
+  }
+  .circ-card .ct{
+    font-family:"Space Grotesk",sans-serif;
+    font-weight:600;
+    font-size:15.5px;
+    margin-bottom:2px;
+    display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+  }
+  .circ-card .cmeta{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-faint);}
+  .circ-card svg{width:100%;height:auto;display:block;margin-top:6px;}
+  .circ-card .cnote{font-size:14.5px;color:var(--ink-soft);margin:4px 2px 2px;}
+
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"IBM Plex Mono",monospace;font-size:12.5px;margin:6px 0 2px;color:var(--ink-soft);}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .legend i{width:13px;height:13px;border-radius:3px;display:inline-block;}
+
+  /* axis cards for variations */
+  .axes{display:grid;gap:12px;margin:16px 0;}
+  .axis{border:1px solid var(--line);border-left:4px solid var(--field);border-radius:8px;background:var(--surface);padding:12px 18px;}
+  .axis .an{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--field);font-weight:600;letter-spacing:0.04em;}
+  .axis .at{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:16px;margin:1px 0 4px;}
+  .axis p{margin:4px 0 2px;font-size:15.5px;}
+
+  ul,ol{margin:10px 0;padding-left:24px;}
+  li{margin:6px 0;}
+
+  hr.div{border:none;border-top:1px solid var(--line);margin:46px 0 0;}
+
+  footer{
+    margin-top:60px;padding-top:22px;border-top:1px solid var(--line);
+    font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-faint);
+    line-height:1.7;
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width:860px){
+    .wrap{grid-template-columns:1fr;}
+    nav.toc{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line);padding:24px;}
+    nav.toc{display:none;}
+    main{padding:30px 22px 80px;}
+    header.mast h1{font-size:30px;}
+    body{font-size:17px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="toc">
+    <div class="brand">Trotterized Heisenberg
+      <small>2026 양자정보경진대회 · 지정문제 1 가이드</small>
+    </div>
+    <hr>
+    <a class="lead" href="#overview"><span class="n">0</span>큰 그림</a>
+    <a class="lead" href="#model"><span class="n">1</span>모델</a>
+    <a class="lead" href="#p1"><span class="n">2</span>문제 1 — 회로 구성·검증</a>
+    <a href="#z-error">└ Z₁ / Z₀Z₁ 에러란?</a>
+    <a class="lead" href="#p2"><span class="n">3</span>문제 2 — 스펙트럼 추출</a>
+    <a class="lead" href="#bonus"><span class="n">4</span>보너스 3 — 회로 최적화</a>
+    <a class="lead" href="#ordering"><span class="n">5</span>Ham ordering: 어디서·어떻게</a>
+    <a href="#ordering-diagrams">└ 세 가지 배치 (회로도)</a>
+    <a class="lead" href="#variations"><span class="n">6</span>가능한 변형들</a>
+    <a class="lead" href="#extensions"><span class="n">7</span>확장 방향</a>
+    <a class="lead" href="#caveat"><span class="n">8</span>주의: 사전준비와의 차이</a>
+  </nav>
+
+  <main>
+    <header class="mast">
+      <div class="eyebrow">Quantum Korea Hackathon · Designated Problem 1</div>
+      <h1>Trotterized Quantum Simulation<br>문제 가이드</h1>
+      <p class="lede">주기 경계 Heisenberg 사슬의 시간 진화를 Trotter 회로로 구현하고, 정확도·자원·스펙트럼 관점에서 검증하는 문제의 전체 흐름과 접근법을 정리한다.</p>
+      <div class="qline-strip"><span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span></div>
+    </header>
+
+    <!-- ============ 0. OVERVIEW ============ -->
+    <section id="overview" data-c="ink">
+      <h2>큰 그림 <span class="tag">왜 이걸 하는가</span></h2>
+      <p>양자 시스템의 시간 진화는 <strong>Hamiltonian $H$</strong>(에너지 규칙서 역할을 하는 행렬)가 결정한다. 처음 상태 $|\psi_0\rangle$는 시간 $t$ 후에</p>
+      $$|\psi(t)\rangle = e^{-iHt}\,|\psi_0\rangle$$
+      <p>가 된다. 양자컴퓨터로 물리를 시뮬레이션한다는 건 결국 이 <strong>시간 진화 연산자 $e^{-iHt}$를 게이트 회로로 만들어 실행</strong>하는 것이다.</p>
+
+      <p>문제는 $H = A+B+C+\dots$가 여러 조각의 합이고 그 조각들이 서로 <strong>교환되지 않는다</strong>는 점이다. 보통 수라면 $e^{a+b}=e^a e^b$지만, 행렬에서는 $A,B$가 교환 안 되면 $e^{A+B}\neq e^A e^B$다. 그래서 $H$ 전체의 지수를 한 번에 깔끔한 게이트로 못 만든다.</p>
+
+      <h3>Trotterization</h3>
+      <p>해결책은 시간을 잘게 쪼개는 것이다.</p>
+      $$e^{-i(A+B)t} \;\approx\; \left(e^{-iA\,t/n}\,e^{-iB\,t/n}\right)^{n}$$
+      <p>각 짧은 조각은 간단한 게이트 하나로 만들 수 있고, 이걸 $n$번 반복(<code>reps</code>)하면 전체 진화에 가까워진다. 직관적으로는 “A 조금, B 조금”을 빠르게 번갈아 하는 것이고, 잘게 할수록 정확하다.</p>
+
+      <div class="box note">
+        <div class="h"><span class="ico">⇄</span>이 문제 전체를 관통하는 trade-off</div>
+        <p style="margin:4px 0 0"><code>reps</code>↑ → 정확하지만 회로가 깊다(게이트↑ → 실제 하드웨어 노이즈↑). <code>reps</code>↓ → 얕지만 부정확. 이 줄다리기를 <strong>정량적으로 보여주는 것</strong>이 대회 문제의 본질이다.</p>
+      </div>
+
+      <p><strong>Trotter 종류.</strong> 쪼개는 방식에 따라 정확도가 다르다. Lie–Trotter(1차)는 “A 다음 B”로 오차가 크고, 2차 Suzuki는 “½A → B → ½A”의 대칭 방식이라 오차가 작다. 4차는 더 정교하지만 게이트가 더 많다. <strong>같은 reps라도 차수↑ = 정확↑ & 깊이↑</strong> — 이것도 trade-off의 한 축이다.</p>
+    </section>
+
+    <!-- ============ 1. MODEL ============ -->
+    <section id="model" data-c="ink">
+      <h2>모델 <span class="tag">고리 위의 6개 스핀</span></h2>
+      <p>대상은 고리(ring) 모양으로 연결된 6개 큐비트다. 자석 사슬을 동그랗게 말아 끝과 끝을 이은 모양.</p>
+      $$H=\sum_{j=0}^{N-1}\bigl(J_x X_jX_{j+1}+J_y Y_jY_{j+1}+J_z Z_jZ_{j+1}\bigr)+h_x\sum_{j=0}^{N-1}X_j,\quad (j{+}1 \bmod N)$$
+      <ul>
+        <li><span style="color:var(--xx)">■</span> <span style="color:var(--yy)">■</span> <span style="color:var(--zz)">■</span> 앞부분(XX·YY·ZZ): <strong>이웃한 두 스핀의 상호작용</strong>. $J_x,J_y,J_z$는 방향별 결합 세기.</li>
+        <li><span style="color:var(--field)">■</span> 뒷부분($h_x\sum X_j$): <strong>외부 가로 자기장</strong>. 각 스핀을 혼자서도 흔든다.</li>
+        <li><code>j+1 mod N</code>이 <strong>고리</strong>를 만든다 — 5번이 다시 0번과 연결(주기 경계 조건, PBC).</li>
+      </ul>
+      <p class="sub">N = 6 · Jx = 1.0 · Jy = 0.7 · Jz = 1.2 · hx = 0.4 · |ψ₀⟩ = |010101⟩ · t = 0, 0.05, …, 15.0</p>
+      <p>각 항(예: $X_0X_1$)을 게이트로 바꾸면 두 큐비트 회전 게이트가 된다. 한 Trotter step은 이런 게이트 24개를 늘어놓은 것이고, <code>reps</code>만큼 반복한 게 전체 회로다.</p>
+    </section>
+
+    <!-- ============ 2. PROBLEM 1 ============ -->
+    <section id="p1" data-c="xx">
+      <h2>문제 1 <span class="tag">회로를 만들고 얼마나 정확한지 검증</span></h2>
+      <p>흐름: <strong>회로를 만들어(b,c) → 정답과 비교해 오차를 재고(d,e,f) → 결과를 해석한다(g,h).</strong></p>
+
+      <div class="subprob">
+        <span class="lab">a</span><span class="what">Hamiltonian 만들기</span>
+        <p><code>SparsePauliOp</code>로 $H$를 구성하고, 전체 항 수와 그중 PBC에서 나온 항을 식별.</p>
+        <div class="how"><b>접근 ▸</b> 6 bond × 3(XX,YY,ZZ) = 18, field 6 → <strong>총 24개</strong>. 이 중 5–0을 잇는 $X_5X_0,Y_5Y_0,Z_5Z_0$ 3개가 PBC 항. 리스트로 H를 짜고 항 개수를 출력하면 끝.</div>
+      </div>
+
+      <div class="subprob">
+        <span class="lab">b</span><span class="what">회로 만들기</span>
+        <p>각 $t$마다 $e^{-iHt}$를 <code>PauliEvolutionGate</code>로 회로화. Lie / 2차 Suzuki / 4차 Suzuki × reps 1,2,3 전부.</p>
+        <div class="how"><b>접근 ▸</b> H·t·synthesis 옵션만 주면 Qiskit이 회로를 자동 생성. 손으로 게이트를 쌓을 필요 없음.</div>
+      </div>
+
+      <div class="subprob">
+        <span class="lab">c</span><span class="what">회로 자원 측정</span>
+        <p><code>{cx, u3, u1}</code> basis로 transpile 후 <strong>깊이·전체 게이트 수·CX 수·1큐비트 게이트 수</strong>를 표로.</p>
+        <div class="how"><b>접근 ▸</b> CX(2큐비트) 수가 핵심 — 하드웨어에서 가장 노이즈가 커서 회로 “비용”을 대표한다. trade-off의 <strong>비용</strong> 쪽 데이터.</div>
+      </div>
+
+      <div class="subprob">
+        <span class="lab">d</span><span class="what">정확도 — 상태 비교</span>
+        <p>6큐비트는 작아서 고전적으로 정확한 $|\psi_\text{exact}(t)\rangle$ 계산 가능. Trotter 상태와의 차이를 infidelity로:</p>
+        $$\epsilon_\text{state}(t)=1-\bigl|\langle\psi_\text{exact}|\psi_\text{PF}\rangle\bigr|^2$$
+        <div class="how"><b>접근 ▸</b> $|\langle A|B\rangle|^2$는 두 상태가 겹치는 정도(1=동일, 0=완전 다름). 1에서 빼면 “틀린 정도”. trade-off의 <strong>오차</strong> 쪽 데이터.</div>
+      </div>
+
+      <div class="subprob">
+        <span class="lab">e</span><span class="what">정확도 — 관측량 비교</span>
+        <p>상태 전체가 아니라 실제로 측정할 법한 물리량 $Z_1$, $Z_0Z_1$에 대한 오차:</p>
+        $$\epsilon_O(t)=\bigl|\langle O\rangle_\text{exact}(t)-\langle O\rangle_\text{PF}(t)\bigr|$$
+        <div class="how"><b>접근 ▸</b> (d)는 상태 전체, (e)는 특정 측정값의 오차. 둘이 다르게 움직일 수 있다는 게 관전 포인트. → 아래 <a class="ref" href="#z-error">Z₁ / Z₀Z₁ 에러란?</a> 참고.</div>
+      </div>
+
+      <div class="subprob">
+        <span class="lab">f</span><span class="what">그래프</span>
+        <p>가로축 $t$, 세로축 오차로 (d)·(e)를 그리고 Lie / 2차 / 4차 Suzuki 비교.</p>
+        <div class="how"><b>접근 ▸</b> 시간이 갈수록 오차가 어떻게 쌓이는지, 어떤 방식이 더 천천히 망가지는지가 드러난다.</div>
+      </div>
+
+      <div class="subprob">
+        <span class="lab">g</span><span class="what">해석 — trade-off</span>
+        <p>“같은 reps일 때 최선?”과 “비슷한 깊이일 때 최선?”은 답이 다를 수 있다.</p>
+        <div class="how"><b>접근 ▸</b> 4차는 reps=1로도 정확하지만 깊고, Lie는 얕지만 부정확. <strong>공정한 비교는 깊이(=CX 수)를 맞춰놓고</strong> 누가 더 정확한지 보는 것. 이 관점이 핵심 메시지.</div>
+      </div>
+
+      <div class="subprob">
+        <span class="lab">h</span><span class="what">실제 하드웨어</span>
+        <p>몇 개 $t$를 골라 IBM 백엔드에서 $\langle Z_1\rangle,\langle Z_0Z_1\rangle$ 측정, <code>resilience_level=2</code> 켜고 이상값과 비교, 차이 원인 분석.</p>
+        <div class="how"><b>접근 ▸</b> 여기 오차 = Trotter 오차 + 하드웨어 노이즈. 둘을 구분해 설명하는 게 핵심.</div>
+      </div>
+    </section>
+
+    <!-- ============ Z ERROR DEEP DIVE ============ -->
+    <section id="z-error" data-c="yy">
+      <h2>Z₁ / Z₀Z₁ 에러란? <span class="tag">local-observable error</span></h2>
+      <p>먼저 표기 정리: 문제가 쓰는 관측량은 <strong>$Z_1$(큐비트 1의 단일 Pauli-Z)</strong>와 <strong>$Z_0Z_1$(큐비트 0·1의 ZZ 상관)</strong>이다. ($Z_0$도 같은 개념을 큐비트 0에 적용한 것일 뿐이다.)</p>
+
+      <h3>$\langle Z_1\rangle$ — 한 스핀의 자화(magnetization)</h3>
+      <p>$Z$ 연산자는 큐비트가 $|0\rangle$이면 $+1$, $|1\rangle$이면 $-1$을 준다. 그래서 기대값은</p>
+      $$\langle Z_1\rangle = P(\text{큐비트 1} = 0) - P(\text{큐비트 1} = 1)\;\in[-1,+1]$$
+      <p>물리적으로는 <strong>1번 스핀이 z축에서 위/아래로 얼마나 기울어 있는가</strong>(국소 자화)다. $+1$이면 완전히 위, $-1$이면 완전히 아래, $0$이면 반반. 시간이 흐르면 스핀이 진동하며 이 값이 출렁인다.</p>
+
+      <h3>$\langle Z_0Z_1\rangle$ — 두 스핀의 상관(correlation)</h3>
+      <p>이건 0번과 1번 스핀이 <strong>같은 방향을 보는지 반대를 보는지</strong>를 잰다. 둘 다 위거나 둘 다 아래면 $+1$, 서로 반대면 $-1$ 쪽으로 간다. 단일 스핀 정보가 아니라 <strong>이웃 간 정렬(질서)</strong>을 보는 2점 상관함수다. 자석의 “질서가 얼마나 살아있나”를 보는 가장 기본적인 양.</p>
+
+      <h3>그래서 “에러”는?</h3>
+      $$\epsilon_O(t)=\bigl|\langle O\rangle_\text{exact}(t)-\langle O\rangle_\text{PF}(t)\bigr|$$
+      <p>정확한 값과 Trotter가 예측한 값의 차이를 시간마다 잰 것. $|0\rangle/|1\rangle$ 확률만 알면 측정으로 바로 나오므로 <strong>하드웨어에서 값싸게 측정 가능</strong>하고, 실제 응용에서 우리가 정말 알고 싶은 양인 경우가 많다.</p>
+
+      <div class="box note">
+        <div class="h"><span class="ico">★</span>왜 상태 infidelity와 따로 보나</div>
+        <p style="margin:4px 0 0">infidelity $\epsilon_\text{state}$는 <strong>상태 전체</strong>의 오차(전역적), $\epsilon_O$는 <strong>특정 국소 측정값</strong>의 오차다. 핵심은 둘이 크게 다를 수 있다는 점 — Trotter 상태가 전체적으로는 꽤 어긋나도(infidelity 큼), $Z_1$ 같은 국소량은 거의 맞을 수 있다($\epsilon_O$ 작음). 이 괴리가 문제 1(g) 논의의 좋은 재료다: <strong>“무엇을 측정하느냐에 따라 필요한 회로 정확도가 다르다.”</strong></p>
+      </div>
+    </section>
+
+    <!-- ============ 3. PROBLEM 2 ============ -->
+    <section id="p2" data-c="zz">
+      <h2>문제 2 <span class="tag">신호에서 에너지 스펙트럼 꺼내기</span></h2>
+      <p>비유: 종을 치면 여러 음이 섞여 울린다. 그 소리를 <strong>푸리에 변환</strong>하면 종의 고유 진동수가 봉우리로 나타난다. 이 문제가 하는 일이 정확히 이거다 — 양자 시스템을 “쳐서” 울린 신호에서 <strong>에너지 준위</strong>를 읽어낸다.</p>
+
+      <h3>핵심 신호 $A(t)$</h3>
+      $$A(t)=\langle\psi_0|\,e^{-iHt}\,|\psi_0\rangle = \sum_k |c_k|^2\,e^{-iE_k t}$$
+      <p>$|\psi_0\rangle=\sum_k c_k|E_k\rangle$로 쪼개면, $A(t)$는 <strong>여러 순수 진동의 합</strong>이고 각 진동의 주파수가 곧 에너지 $E_k$다. 진폭 $|c_k|^2$는 “처음 상태가 그 준위와 얼마나 겹치는가”. 그래서 $A(t)$를 푸리에 변환하면 <strong>$E_k$ 위치마다 봉우리</strong>가 뜬다.</p>
+
+      <div class="subprob"><span class="lab">a</span><span class="what">exact $A(t)$</span>
+        <p>고전 시뮬레이션으로 정확한 $A(t)$를 계산, 실수부·허수부·절대값 plot.</p>
+        <div class="how"><b>접근 ▸</b> 정답 기준선. 이게 있어야 Trotter 버전을 검증할 수 있다.</div>
+      </div>
+      <div class="subprob"><span class="lab">b</span><span class="what">Trotter $A_\text{PF}(t)$ — Hadamard test</span>
+        <p>회로도(보조 큐비트–H–controlled-U(t)–H(S)–측정)는 <strong>Hadamard test</strong>다.</p>
+        <div class="how"><b>접근 ▸</b> $A(t)$는 복소수인데 양자컴퓨터는 보통 실수 확률만 측정한다. Hadamard test는 보조 큐비트 하나로 복소 overlap의 실/허수부를 뽑아내는 표준 트릭. <strong>다만 문제가 더 쉬운 길도 허용</strong> — statevector sim에서 처음 상태와 Trotter 최종 상태의 내적을 직접 계산. 처음엔 이 쉬운 버전 권장.</div>
+      </div>
+      <div class="subprob"><span class="lab">c</span><span class="what">오차 비교</span>
+        <p>$\epsilon_A(t)=|A_\text{exact}(t)-A_\text{PF}(t)|$ plot. Trotter가 신호를 얼마나 왜곡하는지.</p>
+      </div>
+      <div class="subprob"><span class="lab">d</span><span class="what">DFT 스펙트럼</span>
+        <p>exact $A(t)$에 이산 푸리에 변환을 걸어 스펙트럼을 그리고 주요 봉우리 식별.</p>
+        <div class="how"><b>접근 ▸</b> 봉우리 위치를 exact 고유에너지와 비교하면 “정말 에너지가 나오는가”를 검증.</div>
+      </div>
+      <div class="subprob"><span class="lab">e</span><span class="what">해석</span>
+        <p>왜 봉우리가 “처음 상태와 겹치는 준위에만” 뜨는지 설명.</p>
+        <div class="how"><b>접근 ▸</b> 위 $A(t)=\sum_k|c_k|^2 e^{-iE_k t}$ 식이 답. $c_k=0$인 준위는 신호에 기여 못 해 봉우리가 안 뜬다 → 이 방법은 “처음 상태가 비춰주는 준위만” 보인다는 게 핵심이자 한계.</div>
+      </div>
+    </section>
+
+    <!-- ============ 4. BONUS ============ -->
+    <section id="bonus" data-c="field">
+      <h2>보너스 3 <span class="tag">회로 최적화 (엔지니어링)</span></h2>
+      <p>대표 회로 하나(<code>SuzukiTrotter(order=2, reps=3)</code>, $t=0.5$)를 골라 transpile <strong>최적화 레벨 0/1/2/3</strong>을 비교.</p>
+      <div class="approach"><b>접근</b>같은 회로라도 컴파일러가 영리하게 정리하면 게이트 수가 크게 준다. depth·전체 게이트 수·2큐비트 게이트 수만 보고. 여유 되면 Rustiq synthesis(<a class="ref" href="https://arxiv.org/abs/2404.03280">arXiv:2404.03280</a>)도 비교. 정확도가 아니라 <strong>회로 효율</strong>의 문제.</div>
+    </section>
+
+    <hr class="div">
+
+    <!-- ============ 5. HAM ORDERING ============ -->
+    <section id="ordering" data-c="xx">
+      <h2>Ham ordering <span class="tag">어느 단계에서·어떻게 쓰이나</span></h2>
+      <p><strong>쓰이는 단계: 문제 1(a)의 hint, 그리고 (b)에서 회로를 만들 때.</strong> $H$의 항들은 수학적으론 그냥 합이라 순서가 없지만, Trotter 회로로 만드는 순간 <strong>순서가 생기고</strong>, 그 순서가 회로 깊이와 Trotter 오차를 둘 다 바꾼다.</p>
+
+      <h3>왜 순서가 문제가 되나</h3>
+      <p><strong>① 같은 큐비트를 건드리는 게이트는 동시에 못 한다.</strong> 깊이(depth)는 시간 단계 수다. 서로 다른 큐비트의 게이트는 병렬 가능하지만, 큐비트를 공유하면 줄을 서야 한다. $X_0X_1$과 $X_2X_3$는 겹침 없음 → 깊이 1. $X_0X_1$과 $X_1X_2$는 1번 공유 → 깊이 2.</p>
+      <p><strong>② 교환 안 되는 항을 어떤 순서로 쪼개냐가 오차를 바꾼다.</strong> $e^{A+B}\neq e^A e^B$의 연장. ABC 순이냐 다른 순이냐로 Trotter 오차 크기가 달라진다.</p>
+
+      <div class="box note">
+        <div class="h"><span class="ico">▸</span>1(a) 답의 뼈대</div>
+        <p style="margin:4px 0 0"><strong>깊이:</strong> Naive는 계단형이라 깊고, even-then-odd는 brick-wall이라 얕다(그룹 내 병렬화). grouped는 거기서 CX까지 줄인다.<br>
+        <strong>오차:</strong> <strong>교환되는 항끼리 묶으면 그 묶음 안에선 Trotter 분할 오차가 없다.</strong> 짝수 bond (0,1)(2,3)(4,5)는 큐비트를 공유 안 해 서로 교환 → 한 그룹으로 묶으면 내부는 공짜로 정확. 오차는 “짝수↔홀수” 경계에서만 생기고, brick-wall은 그 경계 수를 최소화 → 오차도 작다.<br>
+        결론: <strong>even-then-odd가 깊이와 오차를 동시에 줄이고</strong>, grouped는 하드웨어 CX 절감을 더 얹은 버전.</p>
+      </div>
+    </section>
+
+    <section id="ordering-diagrams" data-c="xx" style="padding-top:14px;">
+      <h3 style="margin-top:8px">세 가지 배치 — 회로도</h3>
+      <div class="legend">
+        <span><i style="background:var(--xx)"></i>XX</span>
+        <span><i style="background:var(--yy)"></i>YY</span>
+        <span><i style="background:var(--zz)"></i>ZZ</span>
+        <span style="color:var(--ink-faint)">· 세로 막대 = 두 큐비트 게이트 · 같은 열 = 동시 실행</span>
+      </div>
+      <div class="circuits" id="circuit-host"></div>
+    </section>
+
+    <!-- ============ 6. VARIATIONS ============ -->
+    <section id="variations" data-c="field">
+      <h2>가능한 변형들 <span class="tag">저 세 개가 전부가 아니다</span></h2>
+      <p>배치 자유도는 <strong>세 개의 독립된 축</strong>에서 나온다. 그림은 그중 축 1·2만 건드린다.</p>
+
+      <div class="axes">
+        <div class="axis"><div class="an">AXIS 1</div><div class="at">bond를 몇 층으로 묶나 (layer 분할)</div>
+          <p>교환되는 bond끼리 몇 개 층으로 나누느냐. even-then-odd는 2층(짝/홀). 이는 그래프의 <strong>edge coloring</strong>과 같다 — 짝수 N 고리는 2색이 자연스럽고 최적에 가까워 변형 여지가 작다.</p></div>
+        <div class="axis"><div class="an">AXIS 2</div><div class="at">한 bond에서 XX·YY·ZZ를 묶나 흩나</div>
+          <p>같은 bond의 XX,YY,ZZ는 서로 교환 → 자유롭게 묶거나 분리 가능. grouped가 묶은 것. <strong>변형 여지 충분</strong>, 특히 <code>XX+YY</code>는 hopping 구조라 한 덩어리로 처리하면 CX를 더 줄이는 분해가 알려져 있다(ZZ는 분리).</p></div>
+        <div class="axis"><div class="an">AXIS 3</div><div class="at">Trotter 대칭화 차수 (1/2/4차)</div>
+          <p>1차는 “A B C” 한 방향, 2차는 “½A B ½A” 대칭. <strong>위 두 축과 완전히 직교</strong>해서 어떤 배치 위에든 얹을 수 있다 — 문제 1(b)가 요구하는 그것.</p></div>
+      </div>
+
+      <h4>그림 밖의 추가 변형</h4>
+      <ul>
+        <li><strong>(가) field 항 위치.</strong> $h_x\sum X_j$의 단일 큐비트 항들은 서로 교환 → 한 층에 전부 병렬(거의 공짜). step 안 어디(앞/뒤/중간)에 끼우느냐가 2차 대칭화와 맞물려 오차에 영향. 그림엔 아예 생략됨.</li>
+        <li><strong>(나) 부분 묶음.</strong> ZZ만 빼고 XX·YY만 묶는 식의 중간 전략. grouped보다 더 공격적인 CX 최적화.</li>
+        <li><strong>(다) reps 경계 병합(folding).</strong> 2차 Suzuki를 여러 번 반복하면 인접한 $\tfrac12 A\dots\tfrac12 A$가 만나 $A$로 합쳐져 깊이가 더 준다. step 간 순서를 엇갈리게 잡는 것도 가능.</li>
+        <li><strong>(라) randomized ordering / qDRIFT.</strong> 결정론 순서 대신 <strong>무작위 순서</strong>. 매 step 같은 방향으로 쌓이는 coherent bias가 평균적으로 상쇄됨(대신 분산↑). qDRIFT는 결합 세기에 비례해 항을 확률적으로 샘플링. 별도 비교 축(신상준 파트).</li>
+        <li><strong>(마) 비균일 brick-wall.</strong> 짝/홀을 다른 시간 폭으로, 일부 bond를 더 잘게. 이론상 가능하나 실용성 낮음.</li>
+      </ul>
+
+      <div class="box note">
+        <div class="h"><span class="ico">◎</span>대회 ROI 관점</div>
+        <p style="margin:4px 0 0">표·그래프에 숫자로 바로 드러나 <strong>graded impact가 큰 변형은 (나) Pauli 묶음 최적화와 축 3 차수 선택</strong>. randomized(라)는 신상준이 따로 커버. (가)(마)는 흥미롭지만 표에 잘 안 드러나 ROI 낮음.</p>
+      </div>
+    </section>
+
+    <!-- ============ 7. EXTENSIONS ============ -->
+    <section id="extensions" data-c="zz">
+      <h2>확장 방향 <span class="tag">baseline 위에 무엇을 얹나</span></h2>
+      <p>먼저 손댈 순서는 <strong>1(a) → (b) → (c) → (d)</strong>. 여기까지가 “회로가 돌고 정답과 비교된다”는 뼈대고, 나머지는 전부 이 위에 얹는 분석이다.</p>
+
+      <table>
+        <thead><tr><th>확장</th><th>무엇을</th><th>어디에 붙나</th></tr></thead>
+        <tbody>
+          <tr><td>MPF / extrapolation</td><td class="pl">여러 Trotter 결과를 가중합해 오차를 줄임. <strong>고정 depth budget에서 가장 강한 접근</strong> — 비용을 깊이에서 실행 횟수로 옮김.</td><td class="pl">1(g) trade-off 표, 정소연</td></tr>
+          <tr><td>Hadamard test 실측</td><td class="pl">$A_\text{PF}(t)$를 statevector 대신 controlled-evolution 회로로 진짜 측정.</td><td class="pl">2(b), controlled evolution</td></tr>
+          <tr><td>windowed FFT</td><td class="pl">Hann/Blackman window로 스펙트럼 봉우리를 선명하게(누설 억제).</td><td class="pl">2(d), 조현민</td></tr>
+          <tr><td>Trotter momentum leakage</td><td class="pl">brick-wall이 $C_n\!\to\!C_{n/2}$로 대칭을 줄여 momentum이 새는 양을 <strong>물리적 Trotter 오차 신호</strong>로.</td><td class="pl">ordering 표의 새 열</td></tr>
+          <tr><td>HSP-inspired Fourier sector</td><td class="pl">cyclic translation $C_n$에 대한 Fourier projection으로 momentum-resolved 스펙트럼 $A_q(t)$.</td><td class="pl">조건부 stretch, 곽재현</td></tr>
+          <tr><td>N=12 하드웨어 스케일업</td><td class="pl">heavy-hex 사이클에 embed해 SWAP 없이 실행. one-excitation 대칭으로 ideal 값 효율 계산.</td><td class="pl">1(h) challenge</td></tr>
+        </tbody>
+      </table>
+
+      <div class="box note">
+        <div class="h"><span class="ico">⚑</span>ROI 규율</div>
+        <p style="margin:4px 0 0">HSP·momentum 같은 매력적인 framing은 graded impact 대비 시간을 많이 먹을 수 있다. <strong>baseline 안정성이 우선</strong>이고, momentum 분석은 leakage 진단 같은 실질 결과로 뒷받침될 때만 방어 가능하다.</p>
+      </div>
+    </section>
+
+    <!-- ============ 8. CAVEAT ============ -->
+    <section id="caveat" data-c="yy">
+      <h2>주의 <span class="tag">사전준비 문서와의 결정적 차이</span></h2>
+      <div class="box warn">
+        <div class="h"><span class="ico">!</span>$M_z$는 이 Hamiltonian에서 보존되지 않는다</div>
+        <p style="margin:4px 0 0">사전준비 문서는 $H=\sum(XX{+}YY{+}ZZ)$의 등방성을 가정하고 $[H,M_z]=0$을 bug-check·leakage 진단의 축으로 잡았다(문채영 파트 기반). 하지만 실제 $H$는 두 군데서 $M_z$를 깬다:</p>
+        <ul style="margin:8px 0 4px">
+          <li><strong>$J_x\neq J_y$</strong> (1.0 vs 0.7): $XX{+}YY$는 $S_z$를 보존하지만, 잔여 $(J_x{-}J_y)\,XX$가 $S_z$를 $\pm2$씩 바꾼다.</li>
+          <li><strong>$h_x\sum X_j$</strong>: $[X_j,Z_j]\neq0$이라 가로 자기장이 직접 깬다.</li>
+        </ul>
+        <p style="margin:6px 0 0">즉 “$M_z$가 정확히 보존되는지로 버그를 잡는다”는 계획은 <strong>이 Hamiltonian에서 무효</strong>다. 문채영 파트는 재설계가 필요하다.</p>
+      </div>
+      <p><strong>살아남는 대칭:</strong> 균일 결합 주기 ring이라 $[H,T]=0$(translation/momentum)은 여전히 성립한다. 전역 X-flip $\mathbb Z_2$($\prod_j X_j$)도 남아 $M_z$를 대신할 exact 보존량 후보가 된다. 결과적으로 곽재현의 momentum 분석이 <strong>남은 거의 유일한 깔끔한 대칭 진단</strong>으로 격상된다 — $M_z$ null-check가 사라진 자리를 momentum-sector leakage가 메우는 구조.</p>
+      <p class="sub">단, 1(h)의 N=12 설정($J_x=J_y=1.0,\ h_x=0$)에서는 excitation number가 다시 보존된다 — 문제마다 대칭이 다르니 혼동 주의.</p>
+    </section>
+
+    <footer>
+      2026 양자정보경진대회 · 지정문제 1 — Trotterized Quantum Simulation<br>
+      Heisenberg ring (N=6) · LieTrotter / SuzukiTrotter(2,4) · autocorrelation spectroscopy · resource–error trade-off
+    </footer>
+  </main>
+</div>
+
+<script>
+/* ---------- circuit diagram renderer ---------- */
+(function(){
+  const COLOR = { XX:'#2f6fb0', YY:'#dd8a2c', ZZ:'#4a9e5c' };
+  const N = 6;
+  // gate = {a, b, type}  (a,b adjacent qubit indices; for periodic bond use 5 & 0 -> drawn full height)
+  // a column = array of gates that run simultaneously
+  const orderings = {
+    naive: {
+      title:'Naive', meta:'적힌 순서대로 — 계단형 · 깊이 큼',
+      note:'연속 bond가 큐비트를 하나씩 공유해 거의 병렬화가 안 된다. 한 칸씩 미끄러지는 staircase.',
+      cols: (function(){
+        const c=[]; const types=['XX','YY','ZZ'];
+        types.forEach(t=>{ for(let i=0;i<N-1;i++) c.push([{a:i,b:i+1,type:t}]); c.push([{a:5,b:0,type:t,wrap:true}]); });
+        return c;
+      })()
+    },
+    eto: {
+      title:'Even-then-odd', meta:'brick-wall · 깊이 작음',
+      note:'짝수 bond (0,1)(2,3)(4,5)는 서로 안 겹쳐 한 열에 동시 실행. 짝→홀을 Pauli별로 반복.',
+      cols:[
+        [{a:0,b:1,type:'XX'},{a:2,b:3,type:'XX'},{a:4,b:5,type:'XX'}],
+        [{a:1,b:2,type:'XX'},{a:3,b:4,type:'XX'},{a:5,b:0,type:'XX',wrap:true}],
+        [{a:0,b:1,type:'YY'},{a:2,b:3,type:'YY'},{a:4,b:5,type:'YY'}],
+        [{a:1,b:2,type:'YY'},{a:3,b:4,type:'YY'},{a:5,b:0,type:'YY',wrap:true}],
+        [{a:0,b:1,type:'ZZ'},{a:2,b:3,type:'ZZ'},{a:4,b:5,type:'ZZ'}],
+        [{a:1,b:2,type:'ZZ'},{a:3,b:4,type:'ZZ'},{a:5,b:0,type:'ZZ',wrap:true}]
+      ]
+    },
+    grouped: {
+      title:'Even-then-odd grouped', meta:'brick-wall + bond별 XX·YY·ZZ 묶음 · CX 절감',
+      note:'같은 bond의 XX→YY→ZZ를 붙여 두면 하드웨어 컴파일 때 CX를 공유·상쇄할 여지가 생긴다.',
+      cols:[
+        [{a:0,b:1,type:'XX'},{a:2,b:3,type:'XX'},{a:4,b:5,type:'XX'}],
+        [{a:0,b:1,type:'YY'},{a:2,b:3,type:'YY'},{a:4,b:5,type:'YY'}],
+        [{a:0,b:1,type:'ZZ'},{a:2,b:3,type:'ZZ'},{a:4,b:5,type:'ZZ'}],
+        [{a:1,b:2,type:'XX'},{a:3,b:4,type:'XX'},{a:5,b:0,type:'XX',wrap:true}],
+        [{a:1,b:2,type:'YY'},{a:3,b:4,type:'YY'},{a:5,b:0,type:'YY',wrap:true}],
+        [{a:1,b:2,type:'ZZ'},{a:3,b:4,type:'ZZ'},{a:5,b:0,type:'ZZ',wrap:true}]
+      ]
+    }
+  };
+
+  function buildSVG(cfg){
+    const padL=42, padR=18, padT=26, padB=14;
+    const colW=46, rowH=34;
+    const W = padL + padR + cfg.cols.length*colW;
+    const H = padT + padB + (N-1)*rowH + rowH;
+    const yq = q => padT + q*rowH + rowH/2;
+    let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img">`;
+    // qubit wires + labels
+    for(let q=0;q<N;q++){
+      const y=yq(q);
+      s+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#cdd4dc" stroke-width="1.4"/>`;
+      s+=`<text x="${padL-12}" y="${y+4}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="12" fill="#697585">q${q}</text>`;
+    }
+    // gates
+    cfg.cols.forEach((col,ci)=>{
+      const x = padL + colW*ci + colW/2;
+      col.forEach(g=>{
+        const col_ = COLOR[g.type];
+        let y1,y2;
+        if(g.wrap){ y1=yq(0); y2=yq(5); }   // periodic bond spans full register
+        else { y1=yq(Math.min(g.a,g.b)); y2=yq(Math.max(g.a,g.b)); }
+        const r=4.5;
+        const lab = g.wrap ? '↻'+g.type : g.type;
+        // connector
+        if(g.wrap){
+          // draw slightly offset so it reads as the wrap-around bond
+          s+=`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${col_}" stroke-width="2.4" stroke-dasharray="4 3" opacity="0.9"/>`;
+        } else {
+          s+=`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${col_}" stroke-width="2.6"/>`;
+        }
+        s+=`<circle cx="${x}" cy="${y1}" r="${r}" fill="${col_}"/>`;
+        s+=`<circle cx="${x}" cy="${y2}" r="${r}" fill="${col_}"/>`;
+        // label above topmost dot of this gate (only for non-wrap to avoid clutter; wrap gets a small tag)
+        const ly = y1-8;
+        s+=`<text x="${x}" y="${ly}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" font-weight="600" fill="${col_}">${g.type}</text>`;
+      });
+    });
+    s+=`</svg>`;
+    return s;
+  }
+
+  const host = document.getElementById('circuit-host');
+  ['naive','eto','grouped'].forEach(k=>{
+    const cfg = orderings[k];
+    const card = document.createElement('div');
+    card.className='circ-card';
+    card.innerHTML =
+      `<div class="ct">${cfg.title} <span class="cmeta">${cfg.meta}</span></div>`+
+      buildSVG(cfg)+
+      `<div class="cnote">${cfg.note}</div>`;
+    host.appendChild(card);
+  });
+})();
+</script>
+</body>
+</html>

@@ -16,3 +16,6 @@ venv/
 env/
 
 *.log
+
+competition_day_materials/1_problem_set.pdf
+competition_day_materials/2_problem_guide.ipynb

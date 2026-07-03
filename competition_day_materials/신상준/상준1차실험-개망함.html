@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QHackathon 2026 — Problem 1&amp;2 풀이 보고서</title>
+<style>
+  :root {
+    --blue:   #2563eb;
+    --green:  #16a34a;
+    --red:    #dc2626;
+    --orange: #d97706;
+    --gray:   #6b7280;
+    --bg:     #f8fafc;
+    --card:   #ffffff;
+    --border: #e2e8f0;
+    --code:   #1e293b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg);
+         color: #1e293b; line-height: 1.65; font-size: 15px; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+
+  /* ── header ── */
+  header { background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+           color: #fff; padding: 48px 40px 40px; border-radius: 16px;
+           margin-bottom: 40px; }
+  header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+  header p  { opacity: .85; font-size: 1rem; }
+  .badge { display:inline-block; background:rgba(255,255,255,.2);
+           border-radius:6px; padding:2px 10px; font-size:.82rem;
+           margin-right:8px; margin-top:8px; }
+
+  /* ── section ── */
+  .section { background: var(--card); border: 1px solid var(--border);
+             border-radius: 12px; padding: 32px; margin-bottom: 28px;
+             box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .section-header { display:flex; align-items:center; gap:12px;
+                    margin-bottom: 20px; border-bottom: 2px solid var(--border);
+                    padding-bottom: 14px; }
+  .section-header h2 { font-size: 1.25rem; font-weight: 700; }
+  .prob-tag { background: var(--blue); color:#fff; border-radius:6px;
+              padding:2px 10px; font-size:.78rem; font-weight:600;
+              white-space: nowrap; }
+  .prob-tag.green  { background: var(--green); }
+  .prob-tag.orange { background: var(--orange); }
+  .prob-tag.red    { background: var(--red); }
+
+  /* ── subsections ── */
+  h3 { font-size: 1rem; font-weight: 700; color: var(--blue);
+       margin: 22px 0 8px; }
+  h4 { font-size: .92rem; font-weight: 600; color: #334155;
+       margin: 16px 0 6px; }
+
+  /* ── table ── */
+  table { width: 100%; border-collapse: collapse; margin: 14px 0;
+          font-size: .88rem; }
+  th { background: #f1f5f9; color: #334155; font-weight: 600;
+       padding: 9px 14px; text-align: left; border: 1px solid var(--border); }
+  td { padding: 8px 14px; border: 1px solid var(--border); vertical-align:top; }
+  tr:nth-child(even) td { background: #fafbfc; }
+  td.ok  { color: var(--green); font-weight:700; }
+  td.bad { color: var(--red);   font-weight:700; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* ── code ── */
+  pre { background: var(--code); color: #e2e8f0; border-radius: 8px;
+        padding: 18px; overflow-x: auto; font-size: .83rem;
+        line-height: 1.55; margin: 12px 0; }
+  code { font-family: 'Cascadia Code','Consolas',monospace; }
+  .inline-code { background:#f1f5f9; padding:1px 6px; border-radius:4px;
+                 font-family: monospace; font-size:.87em; }
+
+  /* ── math-like display ── */
+  .formula { background:#f8f9ff; border-left:4px solid var(--blue);
+             padding:12px 16px; border-radius:0 8px 8px 0; margin:12px 0;
+             font-family: monospace; font-size:.93rem; }
+
+  /* ── status pill ── */
+  .pill { display:inline-block; border-radius:20px; padding:3px 12px;
+          font-size:.8rem; font-weight:600; }
+  .pill.done    { background:#dcfce7; color:var(--green); }
+  .pill.partial { background:#fef3c7; color:var(--orange); }
+  .pill.pending { background:#fee2e2; color:var(--red); }
+
+  /* ── summary grid ── */
+  .summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+                  gap:16px; margin: 20px 0; }
+  .summary-card { background: #f8fafc; border:1px solid var(--border);
+                  border-radius:10px; padding:16px; }
+  .summary-card .label { font-size:.78rem; color:var(--gray); font-weight:600;
+                         text-transform:uppercase; letter-spacing:.04em; }
+  .summary-card .value { font-size:1.6rem; font-weight:700; color:var(--blue);
+                         margin:4px 0; }
+  .summary-card .sub   { font-size:.8rem; color:var(--gray); }
+
+  /* ── result highlight ── */
+  .result-box { background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px;
+                padding:16px; margin:14px 0; }
+  .result-box.warn { background:#fffbeb; border-color:#fde68a; }
+  .result-box.info { background:#eff6ff; border-color:#bfdbfe; }
+
+  /* ── two-col layout ── */
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media(max-width:700px){ .two-col { grid-template-columns:1fr; } }
+
+  /* ── footer ── */
+  footer { text-align:center; color:var(--gray); font-size:.83rem; margin-top:40px;
+           padding-top:24px; border-top:1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ════════════════════════════════ HEADER ══════════════════════════════════ -->
+<header>
+  <h1>QHackathon 2026 — 양자 Trotter 시뮬레이션 풀이 보고서</h1>
+  <p>주기 비등방 Heisenberg 체인의 Trotterized 시간 진화 시뮬레이션</p>
+  <div style="margin-top:14px">
+    <span class="badge">N = 6 (기본)</span>
+    <span class="badge">Jx=1.0, Jy=0.7, Jz=1.2, hx=0.4</span>
+    <span class="badge">IBM Quantum · ibm_miami</span>
+    <span class="badge">Qiskit 2.x</span>
+  </div>
+</header>
+
+<!-- ════════════════════════════════ OVERVIEW ════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <h2>문제 개요</h2>
+  </div>
+
+  <h3>Hamiltonian</h3>
+  <div class="formula">
+H = Σ<sub>j=0</sub><sup>N-1</sup> ( Jx·X<sub>j</sub>X<sub>j+1</sub> + Jy·Y<sub>j</sub>Y<sub>j+1</sub> + Jz·Z<sub>j</sub>Z<sub>j+1</sub> )
+  + hx · Σ<sub>j=0</sub><sup>N-1</sup> X<sub>j</sub>
+  </div>
+  <p>경계 조건은 <strong>주기적(periodic)</strong>: 인덱스 j+1은 mod N으로 계산. 초기 상태는 Néel 상태
+  <strong>|ψ₀⟩ = |010101⟩</strong> (qubit-0-first 표기). 시간 격자: t = 0, 0.05, …, 15.0 (총 301점).</p>
+
+  <h3>완료 현황</h3>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="label">완료된 문제</div>
+      <div class="value">8 / 9</div>
+      <div class="sub">문제 1(a–g), 2(a–e), Bonus 3</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">IBM 하드웨어 실험</div>
+      <div class="value" style="color:var(--orange)">진행 중</div>
+      <div class="sub">회로 검증 완료, 결과 대기 중</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">정확 고전 기준값</div>
+      <div class="value">확보</div>
+      <div class="sub">N=6 exact diag · N=12 1-excitation</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Trotter 방법</div>
+      <div class="value">9가지</div>
+      <div class="sub">LT/ST2/ST4 × k=1,2,3</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ PROBLEM 1(a) ════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="prob-tag">Problem 1(a)</span>
+    <h2>Hamiltonian 구성</h2>
+    <span class="pill done">완료</span>
+  </div>
+
+  <h3>풀이 방법</h3>
+  <p>Qiskit <span class="inline-code">SparsePauliOp.from_list()</span>를 사용해 구성.
+  Qiskit의 Pauli 문자열 컨벤션: 가장 오른쪽 문자가 qubit 0. qubit j에 연산자 P를 배치하려면
+  <span class="inline-code">chars[N−1−j] = P</span>.</p>
+
+  <pre><code>def _site_pauli(paulis, sites, n):
+    chars = ['I'] * n
+    for p, s in zip(paulis, sites):
+        chars[n - 1 - s] = p
+    return ''.join(chars)
+
+# 예: Z on qubit 1 (N=6) → "IIIIZI"
+# 예: ZZ on qubits 0,1    → "IIIIZZ"</code></pre>
+
+  <h3>결과</h3>
+  <div class="two-col">
+    <div>
+      <h4>항 수</h4>
+      <table>
+        <tr><th>항 종류</th><th class="num">수</th></tr>
+        <tr><td>XX 결합 (6 결합 × 1)</td><td class="num">6</td></tr>
+        <tr><td>YY 결합 (6 결합 × 1)</td><td class="num">6</td></tr>
+        <tr><td>ZZ 결합 (6 결합 × 1)</td><td class="num">6</td></tr>
+        <tr><td>X-field (6 사이트)</td><td class="num">6</td></tr>
+        <tr><td><strong>합계</strong></td><td class="num"><strong>24</strong></td></tr>
+      </table>
+    </div>
+    <div>
+      <h4>주기 경계(PBC) 항</h4>
+      <table>
+        <tr><th>Pauli 문자열</th><th>결합</th><th>계수</th></tr>
+        <tr><td><code>XIIIIX</code></td><td>(5,0)</td><td>1.0</td></tr>
+        <tr><td><code>YIIIIY</code></td><td>(5,0)</td><td>0.7</td></tr>
+        <tr><td><code>ZIIIIZ</code></td><td>(5,0)</td><td>1.2</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>항 순서(ham_ordering) 분석</h3>
+  <div class="result-box info">
+    <strong>짝홀(even-odd) 순서가 순차(sequential) 순서보다 회로 깊이와 Trotter 오차 면에서 유리합니다.</strong>
+    <ul style="margin-top:10px; padding-left:20px">
+      <li>순차 순서: bond (0,1) → (1,2) → (2,3) → …  — 인접 결합이 qubit을 공유하므로 직렬 실행 필수</li>
+      <li>짝홀 순서: 짝수 결합 (0,1),(2,3),(4,5) 먼저 → 홀수 결합 (1,2),(3,4),(5,0) — 같은 그룹 내 공유 qubit 없음 → <strong>병렬 실행</strong></li>
+      <li>N=12, SuzukiTrotter(order=2, reps=1) 기준: depth <strong>262 → 40</strong>, 2Q-depth <strong>69 → 9</strong></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ PROBLEM 1(b-c) ══════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="prob-tag">Problem 1(b-c)</span>
+    <h2>Product-formula 회로 리소스 카운트</h2>
+    <span class="pill done">완료</span>
+  </div>
+
+  <h3>풀이 방법</h3>
+  <p>9가지 설정: LieTrotter(k=1,2,3), SuzukiTrotter(order=2, k=1,2,3), SuzukiTrotter(order=4, k=1,2,3).
+  <span class="inline-code">PauliEvolutionGate</span> + <span class="inline-code">transpile(basis_gates=["cx","u3","u1"])</span>.</p>
+
+  <h3>결과 (t = 0.5, optimization_level = 0)</h3>
+  <table>
+    <tr>
+      <th>설정</th><th class="num">depth</th><th class="num">전체 게이트</th>
+      <th class="num">2-큐비트 (CX)</th><th class="num">1-큐비트</th>
+    </tr>
+    <tr><td>LT_k1</td> <td class="num">79</td>   <td class="num">108</td>  <td class="num">36</td>   <td class="num">72</td></tr>
+    <tr><td>LT_k2</td> <td class="num">158</td>  <td class="num">216</td>  <td class="num">72</td>   <td class="num">144</td></tr>
+    <tr><td>LT_k3</td> <td class="num">237</td>  <td class="num">324</td>  <td class="num">108</td>  <td class="num">216</td></tr>
+    <tr><td>ST2_k1</td><td class="num">158</td>  <td class="num">215</td>  <td class="num">72</td>   <td class="num">143</td></tr>
+    <tr><td>ST2_k2</td><td class="num">316</td>  <td class="num">430</td>  <td class="num">144</td>  <td class="num">286</td></tr>
+    <tr><td>ST2_k3</td><td class="num">474</td>  <td class="num">645</td>  <td class="num">216</td>  <td class="num">429</td></tr>
+    <tr><td>ST4_k1</td><td class="num">790</td>  <td class="num">1075</td> <td class="num">360</td>  <td class="num">715</td></tr>
+    <tr><td>ST4_k2</td><td class="num">1580</td> <td class="num">2150</td> <td class="num">720</td>  <td class="num">1430</td></tr>
+    <tr><td>ST4_k3</td><td class="num">2370</td> <td class="num">3225</td> <td class="num">1080</td> <td class="num">2145</td></tr>
+  </table>
+  <p style="margin-top:8px; color:var(--gray); font-size:.85rem">
+    각 설정에서 depth · 게이트 수는 k에 비례해 선형 증가. ST4는 ST2 대비 ≈5배 더 깊은 회로.
+  </p>
+</div>
+
+<!-- ════════════════════════════════ PROBLEM 1(d-f) ══════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="prob-tag">Problem 1(d-f)</span>
+    <h2>상태 충실도 및 국소 관측량 오차</h2>
+    <span class="pill done">완료</span>
+  </div>
+
+  <h3>풀이 방법</h3>
+  <div class="formula">
+ε<sub>state</sub>(t) = 1 − |⟨ψ<sub>exact</sub>(t)|ψ<sub>PF</sub>(t)⟩|²
+
+ε<sub>O</sub>(t) = |⟨O⟩<sub>exact</sub>(t) − ⟨O⟩<sub>PF</sub>(t)|
+  </div>
+  <p>정확 상태: 해밀토니안 대각화 후 위상 인수 적용
+  <span class="inline-code">Statevector(eigvecs @ (exp(-i·E_n·t) * coeffs))</span>.
+  Trotter 상태: <span class="inline-code">Statevector(qc.decompose())</span>.</p>
+
+  <h3>주요 결과 (t = 0.5 기준 state infidelity)</h3>
+  <table>
+    <tr><th>설정</th><th class="num">ε<sub>state</sub>(t=0.5)</th><th>경향</th></tr>
+    <tr><td>LT_k1</td> <td class="num">~0.28</td>  <td>매우 큼 (1차 공식)</td></tr>
+    <tr><td>LT_k3</td> <td class="num">~4×10⁻³</td><td>개선됨</td></tr>
+    <tr><td>ST2_k1</td><td class="num">~0.015</td> <td>LT_k1 대비 큰 개선</td></tr>
+    <tr><td>ST2_k2</td><td class="num">~5×10⁻⁴</td><td>안정적</td></tr>
+    <tr><td>ST2_k3</td><td class="num">~1×10⁻⁵</td><td>매우 작음</td></tr>
+    <tr><td>ST4_k1</td><td class="num">~3×10⁻⁵</td><td>4차 공식의 힘</td></tr>
+    <tr><td>ST4_k3</td><td class="num">&lt;10⁻⁹</td><td>머신 엡실론 수준</td></tr>
+  </table>
+
+  <div class="result-box">
+    <strong>관찰:</strong> 동일한 k에서 정확도 순서는 ST4 &gt; ST2 &gt; LT.
+    긴 시간(t &gt; 5)에서 모든 공식이 오차 누적으로 infidelity → 1에 수렴. 그러나 고차 공식은 초기 선형 증가 구간이 훨씬 길다.
+  </div>
+
+  <h3>정확 기준값 (N=6, exact diagonalization)</h3>
+  <table>
+    <tr><th>시간 t</th><th class="num">⟨Z₁⟩<sub>exact</sub></th><th class="num">⟨Z₀Z₁⟩<sub>exact</sub></th></tr>
+    <tr><td>0.5</td><td class="num">+0.0144</td><td class="num">−0.5060</td></tr>
+    <tr><td>1.0</td><td class="num">−0.1331</td><td class="num">−0.5279</td></tr>
+    <tr><td>2.0</td><td class="num">+0.4162</td><td class="num">−0.5366</td></tr>
+  </table>
+</div>
+
+<!-- ════════════════════════════════ PROBLEM 1(g) ════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="prob-tag">Problem 1(g)</span>
+    <h2>정확도 vs. 회로 깊이 토론</h2>
+    <span class="pill done">완료</span>
+  </div>
+
+  <h3>Q1. 같은 반복 수 k에서 가장 정확한 공식은?</h3>
+  <div class="result-box info">
+    <strong>ST4 &gt; ST2 &gt; LT</strong>.
+    LT는 1차(오차 O(Δt²)), ST2는 2차(O(Δt³)), ST4는 4차(O(Δt⁵)). k=1, t=0.5 기준으로
+    infidelity가 LT≈0.28 / ST2≈0.015 / ST4≈3×10⁻⁵로 급격히 줄어든다.
+  </div>
+
+  <h3>Q2. 비슷한 회로 깊이에서 가장 좋은 공식은?</h3>
+  <table>
+    <tr><th>설정</th><th class="num">depth</th><th class="num">2Q 게이트</th><th>ε<sub>state</sub>(t=0.5)</th></tr>
+    <tr><td>LT_k3</td> <td class="num">237</td><td class="num">108</td><td>~4×10⁻³</td></tr>
+    <tr><td>ST2_k2</td><td class="num">316</td><td class="num">144</td><td>~5×10⁻⁴</td></tr>
+    <tr><td>ST2_k3</td><td class="num">474</td><td class="num">216</td><td>~1×10⁻⁵</td></tr>
+    <tr><td>ST4_k1</td><td class="num">790</td><td class="num">360</td><td>~3×10⁻⁵</td></tr>
+  </table>
+  <div class="result-box">
+    <strong>ST2가 단위 깊이당 최고의 정확도–비용 효율</strong>을 보인다.
+    ST4_k1(depth=790)과 비슷한 오차를 ST2_k3(depth=474)에서 달성하며, 2Q 게이트 수는 60% 수준.
+  </div>
+
+  <h3>Q3. 깊이–정확도 트레이드오프</h3>
+  <div class="formula">
+ε ∝ Δt<sup>p+1</sup> = (t/k)<sup>p+1</sup>   (p: 공식 차수)
+depth ∝ k   (선형 증가)
+  </div>
+  <p>k를 늘리면 Trotter 오차는 기하급수적으로 줄지만 회로 깊이·2Q 게이트 수는 선형 증가한다.
+  하드웨어 노이즈 환경에서는 과도한 k가 오히려 총 오차를 키울 수 있으므로,
+  ZNE 같은 에러 완화와 조합이 필요하다.</p>
+</div>
+
+<!-- ════════════════════════════════ PROBLEM 1(h) / Guide 1(g) ═══════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="prob-tag orange">Problem 1(h)</span>
+    <h2>IBM 하드웨어 실험</h2>
+    <span class="pill partial">진행 중</span>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <h3>[A] problem_set.pdf 1(h): N=6</h3>
+      <table>
+        <tr><th>항목</th><th>값</th></tr>
+        <tr><td>큐비트 수</td><td>N = 6</td></tr>
+        <tr><td>파라미터</td><td>Jx=1.0, Jy=0.7, Jz=1.2, hx=0.4</td></tr>
+        <tr><td>초기 상태</td><td>|010101⟩ (Néel)</td></tr>
+        <tr><td>측정 관측량</td><td>⟨Z₁⟩, ⟨Z₀Z₁⟩</td></tr>
+        <tr><td>시간점</td><td>t = 0.5, 1.0, 2.0</td></tr>
+        <tr><td>회로 공식</td><td>LieTrotter(reps=1)</td></tr>
+        <tr><td>물리 큐비트</td><td>[0, 1, 2, 12, 11, 10]</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>[B] Guide 1(g): N=12</h3>
+      <table>
+        <tr><th>항목</th><th>값</th></tr>
+        <tr><td>큐비트 수</td><td>N = 12</td></tr>
+        <tr><td>파라미터</td><td>Jx=Jy=1.0, Jz=1.2, hx=0</td></tr>
+        <tr><td>초기 상태</td><td>|100…0⟩ (1-excitation)</td></tr>
+        <tr><td>측정 관측량</td><td>⟨Z₀⟩</td></tr>
+        <tr><td>시간점</td><td>t = 1.0</td></tr>
+        <tr><td>회로 공식</td><td>SuzukiTrotter(order=2, reps=1)</td></tr>
+        <tr><td>물리 큐비트</td><td>[0,1,2,3,4,5,15,14,13,12,11,10]</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>회로 제약 검증 (Guide Hint 3)</h3>
+  <table>
+    <tr><th>실험</th><th class="num">depth</th><th class="num">2Q 게이트 수</th><th class="num">2Q depth</th>
+        <th>depth &lt; 100</th><th>2Q &lt; 400</th><th>2Qdepth &lt; 30</th></tr>
+    <tr>
+      <td>[A] N=6, LT k=1</td>
+      <td class="num">30</td><td class="num">18</td><td class="num">6</td>
+      <td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td>
+    </tr>
+    <tr>
+      <td>[B] N=12, ST2 k=1 (순차)</td>
+      <td class="num bad">262</td><td class="num">54</td><td class="num bad">69</td>
+      <td class="bad">✗</td><td class="ok">✓</td><td class="bad">✗</td>
+    </tr>
+    <tr>
+      <td>[B] N=12, ST2 k=1 (<strong>짝홀 순서</strong>)</td>
+      <td class="num ok">40</td><td class="num ok">54</td><td class="num ok">9</td>
+      <td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td>
+    </tr>
+  </table>
+
+  <div class="result-box warn">
+    <strong>현황:</strong> 백엔드 ibm_miami 연결 성공, 6-사이클 [0,1,2,12,11,10] 확인, 회로 제약 검증 완료.
+    에러 완화 옵션(<span class="inline-code">resilience_level=2</span>, ZNE)으로 EstimatorV2에 제출 시도 중.
+    큐 대기 중으로 하드웨어 결과값은 아직 미수신.
+  </div>
+
+  <h3>고전 기준값 (실험 비교용)</h3>
+  <table>
+    <tr><th>항목</th><th>값</th><th>계산 방법</th></tr>
+    <tr><td>[A] ⟨Z₁⟩ at t=0.5</td><td class="num">+0.0144</td><td>N=6 exact diagonalization</td></tr>
+    <tr><td>[A] ⟨Z₁⟩ at t=1.0</td><td class="num">−0.1331</td><td>N=6 exact diagonalization</td></tr>
+    <tr><td>[A] ⟨Z₁⟩ at t=2.0</td><td class="num">+0.4162</td><td>N=6 exact diagonalization</td></tr>
+    <tr><td>[A] ⟨Z₀Z₁⟩ at t=0.5</td><td class="num">−0.5060</td><td>N=6 exact diagonalization</td></tr>
+    <tr><td>[A] ⟨Z₀Z₁⟩ at t=1.0</td><td class="num">−0.5279</td><td>N=6 exact diagonalization</td></tr>
+    <tr><td>[A] ⟨Z₀Z₁⟩ at t=2.0</td><td class="num">−0.5366</td><td>N=6 exact diagonalization</td></tr>
+    <tr><td>[B] ⟨Z₀⟩ at t=1.0</td><td class="num">+0.6846</td><td>N=12 1-excitation 부분공간 (utils.py)</td></tr>
+  </table>
+</div>
+
+<!-- ════════════════════════════════ PROBLEM 2(a) ════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="prob-tag green">Problem 2(a)</span>
+    <h2>정확 자기상관 함수</h2>
+    <span class="pill done">완료</span>
+  </div>
+
+  <h3>풀이 방법</h3>
+  <div class="formula">
+A(t) = ⟨ψ₀|e<sup>−iHt</sup>|ψ₀⟩ = Σ<sub>n</sub> |⟨E<sub>n</sub>|ψ₀⟩|² e<sup>−iE<sub>n</sub>t</sup>
+  </div>
+  <p>미리 계산된 정확 상태 <span class="inline-code">exact_states[i]</span>를 사용해
+  <span class="inline-code">np.vdot(psi0.data, exact_states[i].data)</span>로 계산.</p>
+
+  <h3>결과</h3>
+  <div class="result-box">
+    <ul style="padding-left:20px">
+      <li>Re[A(t)]: 빠른 진동 (최대 주파수 ≈ 고유에너지 범위)</li>
+      <li>Im[A(t)]: Re와 위상 π/2 차이의 진동</li>
+      <li>|A(t)|: t=0에서 1, 이후 감쇠(고유에너지 분포에 따른 위상 분산)</li>
+      <li>완전히 비가역적이지 않음: A(t)는 준주기적 신호 (유한 체인, 이산 스펙트럼)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ PROBLEM 2(b-c) ══════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="prob-tag green">Problem 2(b-c)</span>
+    <h2>Hadamard-test 회로를 통한 Trotter 자기상관</h2>
+    <span class="pill done">완료</span>
+  </div>
+
+  <h3>풀이 방법: Hadamard-test 회로</h3>
+  <p>A<sub>PF</sub>(t) = ⟨ψ₀|U<sub>PF</sub>(t)|ψ₀⟩ 를 측정하는 N+1 큐비트 회로:</p>
+
+  <table>
+    <tr><th>큐비트</th><th>역할</th><th>회로 (Re 파트)</th></tr>
+    <tr><td>q[0]</td><td>보조(ancilla)</td><td>H → 제어 → H → 측정</td></tr>
+    <tr><td>q[1..N]</td><td>시스템</td><td>|ψ₀⟩ 준비 → U<sub>PF</sub>(t) 적용</td></tr>
+  </table>
+
+  <pre><code>def hadamard_test_circuit(t, synthesis, part='real'):
+    qc = QuantumCircuit(N + 1)
+    qc.h(0)                                      # ancilla → |+⟩
+    for i, bit in enumerate(reversed(BITSTRING_NEEL)):
+        if bit == '1': qc.x(i + 1)              # system → |ψ₀⟩
+    ctrl_gate = PauliEvolutionGate(H_spo, time=t,
+                    synthesis=synthesis).control(1)
+    qc.append(ctrl_gate, range(N + 1))           # controlled-U_PF
+    if part == 'imag': qc.sdg(0)                # S† for Im part
+    qc.h(0)
+    return qc
+
+# P(|0⟩) - P(|1⟩) on ancilla = Re(A_PF) or Im(A_PF)</code></pre>
+
+  <h3>검증 결과</h3>
+  <table>
+    <tr><th>t</th><th class="num">Re (직접 계산)</th><th class="num">Re (HT 회로)</th>
+        <th class="num">Im (직접 계산)</th><th class="num">Im (HT 회로)</th><th>일치</th></tr>
+    <tr><td>0.0</td><td class="num">1.000000</td><td class="num">1.000000</td>
+        <td class="num">0.000000</td><td class="num">0.000000</td><td class="ok">✓</td></tr>
+    <tr><td>0.5</td><td class="num" colspan="4" style="text-align:center; color:var(--gray)">
+        Statevector 시뮬레이션으로 검증 (수치 오차 &lt; 10⁻¹⁰)</td><td class="ok">✓</td></tr>
+    <tr><td>1.0</td><td class="num" colspan="4" style="text-align:center; color:var(--gray)">
+        Statevector 시뮬레이션으로 검증 (수치 오차 &lt; 10⁻¹⁰)</td><td class="ok">✓</td></tr>
+    <tr><td>2.0</td><td class="num" colspan="4" style="text-align:center; color:var(--gray)">
+        Statevector 시뮬레이션으로 검증 (수치 오차 &lt; 10⁻¹⁰)</td><td class="ok">✓</td></tr>
+  </table>
+
+  <div class="result-box">
+    선택된 설정: <strong>ST2_k2</strong>. 오차 |A<sub>exact</sub>(t) − A<sub>PF</sub>(t)|는 초기 t에서 작고
+    t 증가에 따라 누적 (t ≈ 5에서 ~0.1, t ≈ 10에서 ~0.5 수준).
+    같은 k에서 LT보다 ST2가 더 작은 오차를 보임.
+  </div>
+</div>
+
+<!-- ════════════════════════════════ PROBLEM 2(d-e) ══════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="prob-tag green">Problem 2(d-e)</span>
+    <h2>Fourier 스펙트럼 분석</h2>
+    <span class="pill done">완료</span>
+  </div>
+
+  <h3>풀이 방법</h3>
+  <div class="formula">
+A(t) = Σ<sub>n</sub> |⟨E<sub>n</sub>|ψ₀⟩|² · e<sup>−iE<sub>n</sub>t</sup>
+
+⟹ DFT[A](ω) 의 피크 위치 = 초기 상태와 겹침이 있는 고유에너지 E<sub>n</sub>
+  </div>
+  <pre><code>window      = np.hanning(len(TIMES))
+spectrum    = fftshift(fft(A_exact * window))
+freq        = fftshift(fftfreq(len(TIMES), d=DT_GRID))
+energy_axis = -2 * np.pi * freq    # A(t) = Σ exp(-iE_n t) → peak at E_n</code></pre>
+
+  <h3>결과 및 설명</h3>
+  <div class="result-box info">
+    <strong>왜 특정 고유에너지에서만 피크가 나타나는가?</strong><br>
+    A(t) = Σ<sub>n</sub> c<sub>n</sub>·e<sup>−iE<sub>n</sub>t</sup> 에서 c<sub>n</sub> = |⟨E<sub>n</sub>|ψ₀⟩|².
+    초기 상태 |ψ₀⟩와 겹침이 0인 고유상태(c<sub>n</sub>=0)는 A(t)에 전혀 기여하지 않으며,
+    DFT 스펙트럼에 피크를 만들지 않는다.
+    <br><br>
+    N=6 Néel 상태의 경우, 총 64개 고유상태 중 에너지 보존·대칭에 의해
+    <strong>겹침이 유의미한 고유상태 수가 제한</strong>된다.
+    DFT 스펙트럼의 피크 수 = 겹침 임계값(1%·최대값)을 초과하는 고유상태 수.
+  </div>
+</div>
+
+<!-- ════════════════════════════════ BONUS PROBLEM 3 ═════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="prob-tag red">Bonus Problem 3</span>
+    <h2>회로 최적화 비교</h2>
+    <span class="pill done">완료</span>
+  </div>
+
+  <h3>풀이 방법</h3>
+  <p>SuzukiTrotter(order=2, reps=3), t=0.5 회로를 optimization_level 0~3으로 transpile 비교.
+  Rustiq synthesis 가용 여부도 확인.</p>
+
+  <h3>결과</h3>
+  <table>
+    <tr><th>optimization_level</th><th class="num">depth</th><th class="num">전체 게이트</th><th class="num">2Q 게이트 (CX)</th></tr>
+    <tr><td>0 (기본)</td>    <td class="num">474</td><td class="num">645</td><td class="num">216</td></tr>
+    <tr><td>1 (경량)</td>    <td class="num">433</td><td class="num">546</td><td class="num">216</td></tr>
+    <tr><td>2 (중간)</td>    <td class="num ok">187</td><td class="num ok">284</td><td class="num ok">93</td></tr>
+    <tr><td>3 (최대)</td>    <td class="num ok">187</td><td class="num ok">284</td><td class="num ok">93</td></tr>
+  </table>
+
+  <div class="result-box">
+    <strong>주요 발견:</strong>
+    <ul style="padding-left:20px; margin-top:8px">
+      <li>Level 0→2 전환 시 depth <strong>474 → 187 (−61%)</strong>, 2Q 게이트 수 <strong>216 → 93 (−57%)</strong></li>
+      <li>Level 2와 3의 결과는 동일 → 이 회로에서 level 3의 추가 최적화 효과 없음</li>
+      <li>CX 게이트는 level 0~1에서 동일(216), level 2+에서 절반 이하로 감소 → 2Q 게이트 병합/취소 최적화 작동</li>
+      <li><strong>Rustiq synthesis: 이 환경에서 사용 불가</strong> (ImportError)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ SUMMARY ═════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <h2>전체 진행 현황 요약</h2>
+  </div>
+  <table>
+    <tr><th>문제</th><th>내용</th><th>상태</th><th>비고</th></tr>
+    <tr><td>1(a)</td><td>Hamiltonian 구성 + 항 순서 설명</td>
+        <td><span class="pill done">완료</span></td><td>24 항, PBC 식별, even-odd 분석</td></tr>
+    <tr><td>1(b-c)</td><td>회로 리소스 카운트 (9가지 설정)</td>
+        <td><span class="pill done">완료</span></td><td>t=0.5, basis=[cx,u3,u1]</td></tr>
+    <tr><td>1(d-f)</td><td>상태 infidelity + Z₁, Z₀Z₁ 오차</td>
+        <td><span class="pill done">완료</span></td><td>전체 301 시간점, 9가지 설정</td></tr>
+    <tr><td>1(g)</td><td>정확도 vs. 깊이 토론</td>
+        <td><span class="pill done">완료</span></td><td>수치 근거 포함</td></tr>
+    <tr><td>1(h) / Guide 1(g)</td><td>IBM 하드웨어 실험</td>
+        <td><span class="pill partial">진행 중</span></td><td>회로 검증 ✓, 결과 대기 중</td></tr>
+    <tr><td>2(a)</td><td>정확 자기상관 A(t)</td>
+        <td><span class="pill done">완료</span></td><td>Re/Im/|A| 플롯</td></tr>
+    <tr><td>2(b-c)</td><td>Hadamard-test 회로 + Trotter 자기상관</td>
+        <td><span class="pill done">완료</span></td><td>회로 구현 및 Statevector 검증</td></tr>
+    <tr><td>2(d-e)</td><td>Fourier 스펙트럼</td>
+        <td><span class="pill done">완료</span></td><td>DFT + 고유에너지 피크 분석</td></tr>
+    <tr><td>Bonus 3</td><td>최적화 레벨 비교 + Rustiq</td>
+        <td><span class="pill done">완료</span></td><td>Level 2에서 최대 −61% depth</td></tr>
+  </table>
+</div>
+
+<footer>
+  QHackathon 2026 · 2026년 6월 29일 · Qiskit 2.x · qiskit-ibm-runtime 0.45.x
+</footer>
+
+</div>
+</body>
+</html>

@@ -6,8 +6,10 @@ The project studies product-formula simulation choices for a 6-qubit periodic He
 
 ## Repository Contents
 
-- `notebooks/qhackathon2026_submission.ipynb` - main cleaned notebook for Problems 1, 2, and Bonus 3.
+- `notebooks/final_submission.ipynb` - main cleaned notebook copied from the actual final submitted file, `최종제출물/정신곽문조_final1.ipynb`.
+- `notebooks/qhackathon2026_submission.ipynb` - compatibility copy of the same final submission notebook.
 - `notebooks/spectral_expansion.ipynb` - standalone extension on spectral reconstruction from autocorrelation.
+- `competition_day_materials/` - competition-day working bundle, including the provided problem files, references, feedback documents, teammate analysis files, and final-submission version history.
 - `figures/` - exported plots used by the notebooks and presentation.
 - `tables/` - CSV result artifacts, with runtime `job_id` columns removed from public copies.
 - `docs/ordering_kak_analysis.md` - detailed note on term ordering and KAK-style two-qubit block synthesis.
@@ -15,7 +17,7 @@ The project studies product-formula simulation choices for a 6-qubit periodic He
 - `reports/qhackathon2026_presentation.pdf` - final presentation deck.
 - `utils.py` - helper routine for the one-excitation exact reference.
 
-Competition-provided problem PDFs and intermediate backup notebooks are intentionally not included in this public release.
+The public release now keeps the competition-day material bundle for provenance. Local cache folders, OS metadata, and temporary scratch files are still excluded.
 
 ## Highlights
 
@@ -57,7 +59,7 @@ The public copy intentionally leaves these values blank.
 Start with:
 
 ```bash
-jupyter notebook notebooks/qhackathon2026_submission.ipynb
+jupyter notebook notebooks/final_submission.ipynb
 ```
 
 The result tables and figures are already exported under `tables/` and `figures/`. Running every QPU-related cell requires a valid IBM Quantum account and available backend access. The notebook is written so that runtime credentials are read from the environment.
@@ -68,7 +70,7 @@ Before this public release:
 
 - IBM Quantum token, API-token, instance, and CRN values were replaced with empty strings.
 - Runtime `job_id` columns were removed from public CSV artifacts.
-- Cache folders, temporary files, local OS metadata, and backup notebooks were excluded.
+- Cache folders, temporary files, and local OS metadata were excluded.
 
 ## License
 

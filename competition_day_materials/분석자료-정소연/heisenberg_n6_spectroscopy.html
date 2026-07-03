@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Heisenberg Ring N=6 — Spectroscopy</title>
+<style>
+  :root{
+    --ink:#16202e; --ink-soft:#4a5a6e; --line:#d8dde4;
+    --paper:#eef1f5; --panel:#ffffff;
+    --xx:#2f6fde; --yy:#e8902a; --zz:#3a9d57; --field:#7b5cc4;
+    --scope-bg:#0d1726; --scope-grid:#1d3047; --scope-axis:#36506e;
+    --re:#3fc6da; --im:#f06ba6; --abs:#f4cf63;
+    --accent:#ff5a4d;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:ui-sans-serif,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5; padding:clamp(16px,3vw,40px);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;animation:fade .5s ease both}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.wrap{animation:none}}
+
+  header{margin-bottom:22px}
+  .eyebrow{
+    font:600 12px/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    display:flex;gap:10px;align-items:center;margin-bottom:12px;
+  }
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%}
+  h1{
+    font-size:clamp(26px,4.4vw,40px);font-weight:680;letter-spacing:-.02em;
+    margin:0 0 8px;line-height:1.08;
+  }
+  .thesis{max-width:60ch;color:var(--ink-soft);font-size:clamp(15px,1.6vw,17px);margin:0}
+  .thesis b{color:var(--ink);font-weight:600}
+
+  .controls{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;margin:22px 0;display:flex;flex-wrap:wrap;gap:22px 28px;align-items:flex-end;
+  }
+  .ctl-group{display:flex;gap:20px;flex-wrap:wrap}
+  .ctl{display:flex;flex-direction:column;gap:7px;min-width:120px}
+  .ctl label{
+    font:600 11px/1 ui-monospace,monospace;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--ink-soft);display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  }
+  .ctl label .swatch{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:6px;vertical-align:middle}
+  .ctl label .val{font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:160px;height:4px;border-radius:3px;background:var(--line);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--thumb,var(--ink));border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.25);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--thumb,var(--ink));border:2px solid #fff;cursor:pointer}
+  select{font:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);cursor:pointer}
+  button{
+    font:600 13px/1 inherit;padding:9px 16px;border:1px solid var(--ink);border-radius:8px;
+    background:var(--ink);color:#fff;cursor:pointer;transition:opacity .15s
+  }
+  button:hover{opacity:.85}
+  button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  .readout{
+    font:500 12.5px/1.4 ui-monospace,monospace;color:var(--ink-soft);
+    margin-top:2px;display:flex;flex-wrap:wrap;gap:6px 18px;
+  }
+  .readout b{color:var(--ink);font-weight:600}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:18px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px 14px;overflow:hidden}
+  .panel h2{font-size:13px;font-weight:680;margin:0 0 2px;letter-spacing:-.01em}
+  .panel .cap{font-size:12.5px;color:var(--ink-soft);margin:0 0 12px;max-width:46ch}
+  canvas{width:100%;display:block;border-radius:8px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font:500 12px/1 ui-monospace,monospace;color:var(--ink-soft)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+
+  footer{margin-top:24px;font-size:12px;color:var(--ink-soft);max-width:70ch}
+  code{font-family:ui-monospace,monospace;background:#e6eaef;padding:1px 5px;border-radius:4px;font-size:.92em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">
+      <span class="dot" style="background:var(--xx)"></span>
+      <span class="dot" style="background:var(--yy)"></span>
+      <span class="dot" style="background:var(--zz)"></span>
+      Periodic anisotropic Heisenberg chain · transverse field
+    </div>
+    <h1>Heisenberg Ring — N = 6</h1>
+    <p class="thesis">Time evolution turns a static operator into a signal. Its Fourier transform hands the spectrum back: <b>FFT peaks of A(t) land exactly on the eigenenergies</b> that overlap the initial state.</p>
+  </header>
+
+  <div class="controls">
+    <div class="ctl-group">
+      <div class="ctl">
+        <label><span><span class="swatch" style="background:var(--xx)"></span>Jx</span><span class="val" id="v-jx">1.00</span></label>
+        <input id="jx" type="range" min="-2" max="2" step="0.05" value="1.0" style="--thumb:var(--xx)">
+      </div>
+      <div class="ctl">
+        <label><span><span class="swatch" style="background:var(--yy)"></span>Jy</span><span class="val" id="v-jy">0.70</span></label>
+        <input id="jy" type="range" min="-2" max="2" step="0.05" value="0.7" style="--thumb:var(--yy)">
+      </div>
+      <div class="ctl">
+        <label><span><span class="swatch" style="background:var(--zz)"></span>Jz</span><span class="val" id="v-jz">1.20</span></label>
+        <input id="jz" type="range" min="-2" max="2" step="0.05" value="1.2" style="--thumb:var(--zz)">
+      </div>
+      <div class="ctl">
+        <label><span><span class="swatch" style="background:var(--field)"></span>hx</span><span class="val" id="v-hx">0.40</span></label>
+        <input id="hx" type="range" min="0" max="2" step="0.05" value="0.4" style="--thumb:var(--field)">
+      </div>
+    </div>
+    <div class="ctl-group">
+      <div class="ctl">
+        <label><span>FFT window</span></label>
+        <select id="window">
+          <option value="none">None (rectangular)</option>
+          <option value="hann">Hann</option>
+          <option value="blackman">Blackman</option>
+        </select>
+      </div>
+      <div class="ctl" style="min-width:auto">
+        <label>&nbsp;</label>
+        <button id="reset">Reset defaults</button>
+      </div>
+    </div>
+    <div class="readout" style="flex-basis:100%">
+      <span>Pauli terms <b>24</b></span>
+      <span>dimension <b>64</b></span>
+      <span>|ψ₀⟩ = <b>|010101⟩</b> (index 42)</span>
+      <span>Σ|⟨Eₙ|ψ₀⟩|² = <b id="sumw">1.000</b></span>
+      <span>energy span <b id="espan">—</b></span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>Hamiltonian matrix</h2>
+      <p class="cap">64 × 64, blue negative / red positive. Diagonal is the ZZ couplings; off-diagonal entries are XX/YY exchange and the transverse field flips.</p>
+      <canvas id="cv-mat"></canvas>
+    </div>
+
+    <div class="panel">
+      <h2>Exact eigenenergies</h2>
+      <p class="cap">All 64 levels. Bar height = |⟨Eₙ|ψ₀⟩|², the overlap with the initial state. Only non-zero bars drive the dynamics.</p>
+      <canvas id="cv-spec"></canvas>
+    </div>
+
+    <div class="panel">
+      <h2>Autocorrelation A(t)</h2>
+      <p class="cap">A(t) = ⟨ψ₀|e<sup>−iHt</sup>|ψ₀⟩ over t = 0 … 15. The signal a Hadamard test reconstructs.</p>
+      <canvas id="cv-auto"></canvas>
+      <div class="legend">
+        <span><i style="background:var(--re)"></i>Re</span>
+        <span><i style="background:var(--im)"></i>Im</span>
+        <span><i style="background:var(--abs)"></i>|A|</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>FFT spectrum</h2>
+      <p class="cap">DFT of A(t) vs energy. The trace peaks fall on the eigenenergy marks (overlap-weighted). Switch the window to trade resolution for lower leakage.</p>
+      <canvas id="cv-fft"></canvas>
+      <div class="legend">
+        <span><i style="background:var(--re)"></i>|FFT|</span>
+        <span><i style="background:var(--accent)"></i>exact Eₙ (weighted)</span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Convention: bit string is qubit-0-first, matching the guide notebook. FFT follows
+    <code>energy = −2π·fftfreq</code> so peaks read directly as eigenenergies. Diagonalization runs in-browser via the Jacobi rotation method on the real-symmetric 64×64 matrix.
+  </footer>
+</div>
+
+<script>
+"use strict";
+const DIM = 64, N = 6;
+const DT = 0.05, TMAX = 15.0;
+const TIMES = []; for(let t=0;t<=TMAX+1e-9;t+=DT) TIMES.push(+t.toFixed(10));
+const M = TIMES.length; // 301
+
+// initial state |010101> qubit-0-first -> integer index
+const INIT_BITS = [0,1,0,1,0,1]; // q0..q5
+let INIT_IDX = 0; for(let j=0;j<6;j++) INIT_IDX += INIT_BITS[j]<<j; // 42
+
+const bonds = []; for(let j=0;j<N;j++) bonds.push([j,(j+1)%N]);
+
+// ---------- Hamiltonian (real symmetric) ----------
+function buildH(Jx,Jy,Jz,hx){
+  const H = new Float64Array(DIM*DIM);
+  for(let b=0;b<DIM;b++){
+    let diag=0;
+    for(const [j,k] of bonds){
+      const zj=1-2*((b>>j)&1), zk=1-2*((b>>k)&1);
+      diag += Jz*zj*zk;
+    }
+    H[b*DIM+b]+=diag;
+    for(const [j,k] of bonds){
+      const bf = b ^ (1<<j) ^ (1<<k);
+      const bj=(b>>j)&1, bk=(b>>k)&1;
+      const sign = (bj===bk)? -1 : 1; // YY: + if bits differ, - if same
+      H[bf*DIM+b]+=Jx + Jy*sign;       // XX + YY
+    }
+    for(let j=0;j<N;j++){              // transverse field
+      const bf=b^(1<<j);
+      H[bf*DIM+b]+=hx;
+    }
+  }
+  return H;
+}
+
+// ---------- Jacobi eigensolver (real symmetric) ----------
+function jacobi(Ain){
+  const n=DIM;
+  const a=Float64Array.from(Ain);
+  const v=new Float64Array(n*n);
+  for(let i=0;i<n;i++) v[i*n+i]=1;
+  for(let sweep=0;sweep<120;sweep++){
+    let off=0;
+    for(let p=0;p<n;p++) for(let q=p+1;q<n;q++) off+=Math.abs(a[p*n+q]);
+    if(off<1e-11) break;
+    for(let p=0;p<n-1;p++){
+      for(let q=p+1;q<n;q++){
+        const apq=a[p*n+q];
+        if(Math.abs(apq)<1e-14) continue;
+        const app=a[p*n+p], aqq=a[q*n+q];
+        const theta=(aqq-app)/(2*apq);
+        const t=(theta>=0?1:-1)/(Math.abs(theta)+Math.sqrt(theta*theta+1));
+        const c=1/Math.sqrt(t*t+1), s=t*c;
+        for(let i=0;i<n;i++){ const aip=a[i*n+p], aiq=a[i*n+q]; a[i*n+p]=c*aip-s*aiq; a[i*n+q]=s*aip+c*aiq; }
+        for(let i=0;i<n;i++){ const api=a[p*n+i], aqi=a[q*n+i]; a[p*n+i]=c*api-s*aqi; a[q*n+i]=s*api+c*aqi; }
+        a[p*n+q]=0; a[q*n+p]=0;
+        for(let i=0;i<n;i++){ const vip=v[i*n+p], viq=v[i*n+q]; v[i*n+p]=c*vip-s*viq; v[i*n+q]=s*vip+c*viq; }
+      }
+    }
+  }
+  const vals=new Float64Array(n);
+  for(let i=0;i<n;i++) vals[i]=a[i*n+i];
+  return {vals, vecs:v};
+}
+
+// ---------- window ----------
+function makeWindow(kind){
+  const w=new Float64Array(M);
+  for(let m=0;m<M;m++){
+    const x=m/(M-1);
+    if(kind==='hann') w[m]=0.5-0.5*Math.cos(2*Math.PI*x);
+    else if(kind==='blackman') w[m]=0.42-0.5*Math.cos(2*Math.PI*x)+0.08*Math.cos(4*Math.PI*x);
+    else w[m]=1;
+  }
+  return w;
+}
+
+// ---------- DFT ----------
+function dft(Are,Aim){
+  const Xre=new Float64Array(M), Xim=new Float64Array(M);
+  for(let k=0;k<M;k++){
+    let sr=0,si=0;
+    const base=-2*Math.PI*k/M;
+    for(let m=0;m<M;m++){
+      const ang=base*m, ca=Math.cos(ang), sa=Math.sin(ang);
+      sr += Are[m]*ca - Aim[m]*sa;
+      si += Are[m]*sa + Aim[m]*ca;
+    }
+    Xre[k]=sr; Xim[k]=si;
+  }
+  return {Xre,Xim};
+}
+function fftfreqEnergy(){ // energy = -2*pi*freq, freq per numpy fftfreq
+  const E=new Float64Array(M);
+  const val=1/(M*DT);
+  const half=Math.floor((M-1)/2)+1;
+  for(let k=0;k<M;k++){
+    const f=(k<half ? k : k-M)*val;
+    E[k]=-2*Math.PI*f;
+  }
+  return E;
+}
+const ENERGY_AXIS = fftfreqEnergy();
+
+// ---------- compute pipeline ----------
+let STATE=null;
+function compute(){
+  const Jx=+jx.value, Jy=+jy.value, Jz=+jz.value, hx=+hxEl.value;
+  const H=buildH(Jx,Jy,Jz,hx);
+  const {vals,vecs}=jacobi(H);
+  const w=new Float64Array(DIM);
+  let sumw=0;
+  for(let k=0;k<DIM;k++){ const c=vecs[INIT_IDX*DIM+k]; w[k]=c*c; sumw+=w[k]; }
+
+  // autocorrelation A(t)=sum_k w_k exp(-i E_k t)
+  const Are=new Float64Array(M), Aim=new Float64Array(M);
+  for(let m=0;m<M;m++){
+    const t=TIMES[m]; let re=0,im=0;
+    for(let k=0;k<DIM;k++){ const ph=vals[k]*t; re+=w[k]*Math.cos(ph); im-=w[k]*Math.sin(ph); }
+    Are[m]=re; Aim[m]=im;
+  }
+
+  // windowed DFT
+  const win=makeWindow(windowEl.value);
+  const Awre=new Float64Array(M), Awim=new Float64Array(M);
+  for(let m=0;m<M;m++){ Awre[m]=Are[m]*win[m]; Awim[m]=Aim[m]*win[m]; }
+  const {Xre,Xim}=dft(Awre,Awim);
+  // pair energy/mag and sort by energy for a monotone trace
+  const pts=[];
+  for(let k=0;k<M;k++) pts.push([ENERGY_AXIS[k], Math.hypot(Xre[k],Xim[k])]);
+  pts.sort((p,q)=>p[0]-q[0]);
+
+  let emin=Infinity,emax=-Infinity;
+  for(let k=0;k<DIM;k++){ if(vals[k]<emin)emin=vals[k]; if(vals[k]>emax)emax=vals[k]; }
+
+  STATE={H,vals,w,Are,Aim,fft:pts,emin,emax,maxAbsH:maxAbs(H)};
+  document.getElementById('sumw').textContent=sumw.toFixed(3);
+  document.getElementById('espan').textContent=emin.toFixed(2)+' … '+emax.toFixed(2);
+  drawAll();
+}
+function maxAbs(arr){ let m=0; for(let i=0;i<arr.length;i++){ const a=Math.abs(arr[i]); if(a>m)m=a; } return m; }
+
+// ---------- canvas helpers ----------
+function fit(canvas,cssH){
+  const dpr=window.devicePixelRatio||1;
+  const cssW=canvas.clientWidth||canvas.parentElement.clientWidth;
+  canvas.width=Math.round(cssW*dpr); canvas.height=Math.round(cssH*dpr);
+  canvas.style.height=cssH+'px';
+  const ctx=canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx,w:cssW,h:cssH};
+}
+function diverging(v,maxA){
+  const t=Math.max(-1,Math.min(1,v/(maxA||1)));
+  if(t>=0) return [255, Math.round(255-160*t), Math.round(255-200*t)];
+  const u=-t; return [Math.round(255-200*u), Math.round(255-160*u), 255];
+}
+
+// ---------- panel: Hamiltonian heatmap ----------
+const offMat=document.createElement('canvas'); offMat.width=DIM; offMat.height=DIM;
+function drawMatrix(){
+  const cv=document.getElementById('cv-mat');
+  const {ctx,w,h}=fit(cv,260);
+  ctx.clearRect(0,0,w,h);
+  const pad=8, size=Math.min(w,h)-pad*2;
+  const x0=(w-size)/2, y0=(h-size)/2;
+  const octx=offMat.getContext('2d'); const img=octx.createImageData(DIM,DIM);
+  const H=STATE.H, mA=STATE.maxAbsH;
+  for(let i=0;i<DIM;i++) for(let j=0;j<DIM;j++){
+    const [r,g,b]=diverging(H[i*DIM+j],mA);
+    const idx=(i*DIM+j)*4; img.data[idx]=r; img.data[idx+1]=g; img.data[idx+2]=b; img.data[idx+3]=255;
+  }
+  octx.putImageData(img,0,0);
+  ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(offMat,x0,y0,size,size);
+  ctx.strokeStyle='#cfd6df'; ctx.lineWidth=1; ctx.strokeRect(x0+.5,y0+.5,size,size);
+  ctx.fillStyle='#8c98a8'; ctx.font='11px ui-monospace,monospace';
+  ctx.fillText('row 0',x0,y0-2);
+  ctx.fillText('col →',x0+size-32,y0+size+13);
+}
+
+// ---------- panel: eigenenergy stems ----------
+function drawSpectrum(){
+  const cv=document.getElementById('cv-spec');
+  const {ctx,w,h}=fit(cv,260);
+  ctx.fillStyle='var(--scope-bg)';
+  scope(ctx,w,h,()=>{
+    const {pl}=scopeRect(w,h);
+    const {vals,w:wt,emin,emax}=STATE;
+    const pad=(emax-emin)*0.08+0.5;
+    const xmin=emin-pad, xmax=emax+pad;
+    let wmax=0; for(let k=0;k<DIM;k++) if(wt[k]>wmax) wmax=wt[k];
+    wmax=Math.max(wmax,1e-6);
+    drawGridX(ctx,pl,xmin,xmax,'energy E');
+    const X=e=>pl.x+(e-xmin)/(xmax-xmin)*pl.w;
+    const Yb=pl.y+pl.h;
+    for(let k=0;k<DIM;k++){
+      const x=X(vals[k]); const hh=(wt[k]/wmax)*(pl.h-6);
+      ctx.strokeStyle = wt[k]/wmax>0.02 ? '#ff5a4d' : '#3a5575';
+      ctx.lineWidth = wt[k]/wmax>0.02 ? 2 : 1;
+      ctx.beginPath(); ctx.moveTo(x,Yb); ctx.lineTo(x,Yb-hh); ctx.stroke();
+      if(wt[k]/wmax>0.05){ ctx.fillStyle='#ff8a80'; ctx.beginPath(); ctx.arc(x,Yb-hh,2.6,0,7); ctx.fill(); }
+    }
+    ctx.fillStyle='#7f9bb8'; ctx.font='10px ui-monospace,monospace';
+    ctx.fillText('|⟨Eₙ|ψ₀⟩|²',pl.x+4,pl.y+12);
+  });
+}
+
+// ---------- panel: autocorrelation ----------
+function drawAuto(){
+  const cv=document.getElementById('cv-auto');
+  const {ctx,w,h}=fit(cv,260);
+  scope(ctx,w,h,()=>{
+    const {pl}=scopeRect(w,h);
+    const {Are,Aim}=STATE;
+    const xmin=0,xmax=TMAX, ymin=-1.05,ymax=1.05;
+    drawGridX(ctx,pl,xmin,xmax,'time t');
+    // zero line
+    const Y=v=>pl.y+pl.h-(v-ymin)/(ymax-ymin)*pl.h;
+    ctx.strokeStyle='var(--scope-axis)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pl.x,Y(0)); ctx.lineTo(pl.x+pl.w,Y(0)); ctx.stroke();
+    const X=t=>pl.x+(t-xmin)/(xmax-xmin)*pl.w;
+    const trace=(arr,color,abs)=>{
+      ctx.strokeStyle=color; ctx.lineWidth=1.4; ctx.beginPath();
+      for(let m=0;m<M;m++){ const v=abs?Math.hypot(Are[m],Aim[m]):arr[m]; const px=X(TIMES[m]),py=Y(v); m?ctx.lineTo(px,py):ctx.moveTo(px,py); }
+      ctx.stroke();
+    };
+    trace(Are,'#3fc6da',false);
+    trace(Aim,'#f06ba6',false);
+    trace(null,'#f4cf63',true);
+    ctx.fillStyle='#7f9bb8'; ctx.font='10px ui-monospace,monospace';
+    ctx.fillText('+1',pl.x+4,Y(1)+10); ctx.fillText('0',pl.x+4,Y(0)-4); ctx.fillText('−1',pl.x+4,Y(-1)-3);
+  });
+}
+
+// ---------- panel: FFT ----------
+function drawFFT(){
+  const cv=document.getElementById('cv-fft');
+  const {ctx,w,h}=fit(cv,260);
+  scope(ctx,w,h,()=>{
+    const {pl}=scopeRect(w,h);
+    const {fft,vals,w:wt,emin,emax}=STATE;
+    const pad=(emax-emin)*0.08+0.5;
+    const xmin=emin-pad, xmax=emax+pad;
+    drawGridX(ctx,pl,xmin,xmax,'energy E = −2π·freq');
+    const X=e=>pl.x+(e-xmin)/(xmax-xmin)*pl.w;
+    const Yb=pl.y+pl.h;
+    // exact eigenenergy comb
+    let wmax=0; for(let k=0;k<DIM;k++) if(wt[k]>wmax) wmax=wt[k]; wmax=Math.max(wmax,1e-6);
+    for(let k=0;k<DIM;k++){
+      if(wt[k]/wmax<0.01) continue;
+      const x=X(vals[k]); const hh=(wt[k]/wmax)*(pl.h-6);
+      ctx.strokeStyle='rgba(255,90,77,0.55)'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(x,Yb); ctx.lineTo(x,Yb-hh); ctx.stroke();
+    }
+    // FFT magnitude trace (clipped to window, normalized over visible peaks)
+    let mmax=1e-9;
+    for(const [e,m] of fft){ if(e>=xmin&&e<=xmax&&m>mmax) mmax=m; }
+    ctx.save();
+    ctx.beginPath(); ctx.rect(pl.x,pl.y,pl.w,pl.h); ctx.clip();
+    ctx.strokeStyle='#3fc6da'; ctx.lineWidth=1.6; ctx.beginPath();
+    let started=false;
+    for(const [e,m] of fft){
+      const px=X(e), py=Yb-(m/mmax)*(pl.h-6);
+      if(!started){ctx.moveTo(px,py);started=true;} else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle='#7f9bb8'; ctx.font='10px ui-monospace,monospace';
+    ctx.fillText('|FFT[A]|',pl.x+4,pl.y+12);
+  });
+}
+
+// ---------- scope chrome ----------
+function scopeRect(w,h){
+  const pl={x:42,y:14,w:w-42-12,h:h-14-26};
+  return {pl};
+}
+function scope(ctx,w,h,body){
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='#0d1726'; roundRect(ctx,0,0,w,h,8); ctx.fill();
+  body();
+}
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+}
+function drawGridX(ctx,pl,xmin,xmax,label){
+  ctx.strokeStyle='#1d3047'; ctx.lineWidth=1;
+  const ticks=niceTicks(xmin,xmax,6);
+  ctx.font='10px ui-monospace,monospace'; ctx.fillStyle='#5d7794'; ctx.textAlign='center';
+  for(const tk of ticks){
+    const x=pl.x+(tk-xmin)/(xmax-xmin)*pl.w;
+    if(x<pl.x-1||x>pl.x+pl.w+1) continue;
+    ctx.beginPath(); ctx.moveTo(x,pl.y); ctx.lineTo(x,pl.y+pl.h); ctx.stroke();
+    ctx.fillText(fmt(tk),x,pl.y+pl.h+13);
+  }
+  ctx.textAlign='left';
+  ctx.fillStyle='#7f9bb8'; ctx.fillText(label,pl.x+pl.w-ctx.measureText(label).width-2,pl.y+pl.h+24);
+  ctx.strokeStyle='#36506e'; ctx.strokeRect(pl.x+.5,pl.y+.5,pl.w,pl.h);
+}
+function fmt(v){ const a=Math.abs(v); if(a>=100)return v.toFixed(0); if(a>=10)return v.toFixed(1); return v.toFixed(1); }
+function niceTicks(min,max,count){
+  const span=max-min; if(span<=0) return [min];
+  const step0=span/count; const mag=Math.pow(10,Math.floor(Math.log10(step0)));
+  const norm=step0/mag; let step;
+  step=(norm<1.5?1:norm<3?2:norm<7?5:10)*mag;
+  const out=[]; let t=Math.ceil(min/step)*step;
+  for(;t<=max+1e-9;t+=step) out.push(+t.toFixed(6));
+  return out;
+}
+
+function drawAll(){ if(!STATE) return; drawMatrix(); drawSpectrum(); drawAuto(); drawFFT(); }
+
+// ---------- wiring ----------
+const jx=document.getElementById('jx'), jy=document.getElementById('jy'),
+      jz=document.getElementById('jz'), hxEl=document.getElementById('hx'),
+      windowEl=document.getElementById('window');
+function readouts(){
+  document.getElementById('v-jx').textContent=(+jx.value).toFixed(2);
+  document.getElementById('v-jy').textContent=(+jy.value).toFixed(2);
+  document.getElementById('v-jz').textContent=(+jz.value).toFixed(2);
+  document.getElementById('v-hx').textContent=(+hxEl.value).toFixed(2);
+}
+let pending=false;
+function schedule(){ if(pending)return; pending=true; requestAnimationFrame(()=>{pending=false; compute();}); }
+[jx,jy,jz,hxEl].forEach(s=>s.addEventListener('input',()=>{readouts(); schedule();}));
+windowEl.addEventListener('change',schedule);
+document.getElementById('reset').addEventListener('click',()=>{
+  jx.value=1.0; jy.value=0.7; jz.value=1.2; hxEl.value=0.4; windowEl.value='none';
+  readouts(); compute();
+});
+let rzPending=false;
+window.addEventListener('resize',()=>{ if(rzPending)return; rzPending=true; requestAnimationFrame(()=>{rzPending=false; drawAll();}); });
+
+readouts();
+compute();
+</script>
+</body>
+</html>
